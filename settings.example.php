@@ -9,17 +9,17 @@ $crowdSecStandaloneBouncerConfig = [
     'log_directory_path' => __DIR__.'/.logs', // [FILL ME] Important note: be sur this path won't be publicly accessible!
     'fs_cache_path' => __DIR__.'/.cache', // [FILL ME] Important note: be sur this path won't be publicly accessible!
 
-    'bouncing_level' => Constants::BOUNCING_LEVEL_NORMAL,
+    'bouncing_level' => 'normal_boucing',
 
     'stream_mode' => false,
 
-    'cache_system' => Constants::CACHE_SYSTEM_PHPFS,
+    'cache_system' => 'phpfs',
     'redis_dsn' => '',
     'memcached_dsn' => '',
 
-    'clean_ip_cache_duration' => Constants::CACHE_EXPIRATION_FOR_CLEAN_IP,
-    'bad_ip_cache_duration' => Constants::CACHE_EXPIRATION_FOR_BAD_IP,
-    'fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
+    'clean_ip_cache_duration' => 5,
+    'bad_ip_cache_duration' => 10,
+    'fallback_remediation' => 'captcha',
 
     'hide_mentions' => false,
     'trust_ip_forward' => '',
