@@ -2,7 +2,7 @@
 CrowdSec bouncer for PHP Website
 
 <p align="center">
-<img src="https://github.com/crowdsecurity/cs-php-bouncer/raw/add_doc/docs/assets/crowdsec_bouncer_php.png" alt="CrowdSec" title="CrowdSec" width="300" height="280" />
+<img src="https://github.com/crowdsecurity/cs-php-bouncer/raw/add_doc/assets/crowdsec_bouncer_php.png" alt="CrowdSec" title="CrowdSec" width="300" height="280" />
 </p>
 <p align="center">
 &#x1F4DA; <a href="#installation">Documentation</a>
