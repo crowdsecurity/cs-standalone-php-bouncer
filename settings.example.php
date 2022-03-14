@@ -9,7 +9,7 @@ $crowdSecStandaloneBouncerConfig = [
     'log_directory_path' => __DIR__.'/.logs', // [FILL ME] Important note: be sur this path won't be publicly accessible!
     'fs_cache_path' => __DIR__.'/.cache', // [FILL ME] Important note: be sur this path won't be publicly accessible!
 
-    'bouncing_level' => 'normal_boucing',
+    'bouncing_level' => 'normal_bouncing',
 
     'stream_mode' => false,
 
