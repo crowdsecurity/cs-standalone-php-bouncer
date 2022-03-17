@@ -5,7 +5,8 @@ use CrowdSecBouncer\Constants;
 $crowdSecStandaloneBouncerConfig = [
     'api_url' => 'http://127.0.0.1:8080', // Default local API is 127.0.0.1:8080. Example in the docker-compose dev context, use http://crowdsec:8080
     'api_key' => '${API_KEY}', // [FILL ME] Set a bouncer key here
-    'debug_mode' => false, // [FILL ME] Set to true to stop the process and display errors if any
+    'debug_mode' => false, // [FILL ME] Set to true to enable debug log
+    'display_errors' => false, // [FILL ME] Set to true to stop the process and display errors if any
     'log_directory_path' => __DIR__.'/.logs', // [FILL ME] Important note: be sur this path won't be publicly accessible!
     'fs_cache_path' => __DIR__.'/.cache', // [FILL ME] Important note: be sur this path won't be publicly accessible!
 
