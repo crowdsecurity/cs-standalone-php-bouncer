@@ -11,21 +11,45 @@ gen_apikey() {
 }
 
 install() {
-    sudo mkdir -p ${LIB_PATH}
-    sudo cp settings.example.php "${LIB_PATH}settings.php"
-    sudo cp crowdsec-php-bouncer.php ${LIB_PATH}
-    sudo cp crowdsec-php-bouncer-refresh.php ${LIB_PATH}
-    sudo cp -r vendor/ ${LIB_PATH}
+    sudo mkdir -p ${LIB_PATH} || {
+        echo "Unable to create ${LIB_PATH}"
+        exit 1
+    }
+    sudo cp settings.example.php "${LIB_PATH}settings.php" || {
+        echo "Unable to copy settings.php"
+        exit 1
+    }
+    sudo cp crowdsec-php-bouncer.php ${LIB_PATH} || {
+        echo "Unable to copy crowdsec-php-bouncer.php"
+        exit 1
+    }
+    sudo cp crowdsec-php-bouncer-refresh.php ${LIB_PATH} || {
+        echo "Unable to copy crowdsec-php-bouncer-refresh.php"
+        exit 1
+    }
+    sudo cp -r vendor/ ${LIB_PATH} || {
+        echo "Unable to copy vendor/"
+        exit 1
+    }
 }
 
 install_apache() {
-    sudo cp ./config/crowdsec_apache.conf ${APACHE_CONFIG_FILE}
-    sudo a2enconf crowdsec_apache >/dev/null
+    sudo cp ./config/crowdsec_apache.conf ${APACHE_CONFIG_FILE} || {
+        echo "Unable to copy apache config file"
+        exit 1
+    }
+    sudo a2enconf crowdsec_apache >/dev/null || {
+        echo "Unable to enable apache config file"
+        exit 1
+    }
     echo "crowdsec_apache apache2 configuration enabled"
 }
 
 install_dependency() {
-    composer install &>/dev/null
+    composer install &>/dev/null || {
+        echo "composer install failed, run 'composer install' to troubleshoot"
+        exit 1
+    }
 }
 
 while [[ $# -gt 0 ]]
