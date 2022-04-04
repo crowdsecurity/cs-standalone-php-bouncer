@@ -12,9 +12,7 @@ if(isset($crowdSecStandaloneBouncerConfig['bouncing_level']) && $crowdSecStandal
 }elseif($crowdSecStandaloneBouncerConfig['bouncing_level'] === 'flex_boucing'){
     $crowdSecStandaloneBouncerConfig['bouncing_level'] = 'flex_bouncing';
 }
-$bounce->setDebug($crowdSecStandaloneBouncerConfig['debug_mode']??false);
-$bounce->setDisplayErrors($crowdSecStandaloneBouncerConfig['display_errors']??false);
-$bounce->init($crowdSecStandaloneBouncerConfig);
+
 $bouncer = $bounce->getBouncerInstance();
 $bouncer->refreshBlocklistCache();
 echo 'OK';

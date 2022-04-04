@@ -3,12 +3,8 @@
     "description": "Crowdsec bouncer for PHP",
     "type": "project",
     "require": {
-        "crowdsec/bouncer": "0.20.0"
-    },
-    "config" : {
-        "platform": {
-            "php": "7.3"
-        }
+        "crowdsec/bouncer": "0.20.0",
+        "php": "^7.3 || ^8.0"
     },
     "license": "MIT License"
 }
