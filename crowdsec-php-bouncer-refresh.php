@@ -5,7 +5,7 @@ require_once __DIR__.'/settings.php';
 
 use CrowdSecBouncer\StandAloneBounce;
 
-$bouncer = new StandAloneBounce();
+$bounce = new StandAloneBounce();
 // Retro compatibility with crowdsec php lib < 0.14.0
 if(isset($crowdSecStandaloneBouncerConfig['bouncing_level']) && $crowdSecStandaloneBouncerConfig['bouncing_level'] === 'normal_boucing'){
     $crowdSecStandaloneBouncerConfig['bouncing_level'] = 'normal_bouncing';
@@ -13,6 +13,7 @@ if(isset($crowdSecStandaloneBouncerConfig['bouncing_level']) && $crowdSecStandal
     $crowdSecStandaloneBouncerConfig['bouncing_level'] = 'flex_bouncing';
 }
 
-$bounce = $bouncer->init($crowdSecStandaloneBouncerConfig);
-$bounce->refreshBlocklistCache();
+$bouncer = $bounce->init($crowdSecStandaloneBouncerConfig);
+$bouncer->refreshBlocklistCache();
+
 echo 'OK';
