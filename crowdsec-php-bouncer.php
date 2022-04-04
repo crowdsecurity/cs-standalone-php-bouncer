@@ -15,6 +15,6 @@ if(isset($crowdSecStandaloneBouncerConfig['bouncing_level']) && $crowdSecStandal
 }
 
 /** @var $crowdSecStandaloneBouncerConfig */
-$bounce->safelyBounce($crowdSecStandaloneBouncerConfig);
+$bouncer->safelyBounce($crowdSecStandaloneBouncerConfig);
 
 ?>
