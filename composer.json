@@ -1,9 +1,0 @@
-{
-    "name": "crowdsec/cs-php-bouncer",
-    "description": "Crowdsec bouncer for PHP",
-    "type": "project",
-    "require": {
-        "crowdsec/bouncer": "0.15.0"
-    },
-    "license": "MIT License"
-}
