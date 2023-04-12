@@ -1,0 +1,419 @@
+name: Test suite
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Allow ddev get to use a GitHub token to prevent rate limiting by tests
+  DDEV_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  test-suite:
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+
+    name: Test suite
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'chore(') }}
+    env:
+      EXTENSION_PATH: "my-code/crowdsec-bouncer-lib"
+      DDEV_PROJECT: "crowdsec-bouncer-lib"
+      JP_TEST_IP: "210.249.74.42"
+      IPV6_TEST_IP: "2001:0db8:0000:85a3:0000:0000:ac1f:8001"
+      IPV6_TEST_PROXY_IP: "2345:0425:2CA1:0000:0000:0567:5673:23b5"
+
+    steps:
+      - name: Install DDEV
+        # @see https://ddev.readthedocs.io/en/stable/#installationupgrade-script-linux-and-macos-armarm64-and-amd64-architectures
+        run: |
+          curl -fsSL https://apt.fury.io/drud/gpg.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/ddev.gpg > /dev/null
+          echo "deb [signed-by=/etc/apt/trusted.gpg.d/ddev.gpg] https://apt.fury.io/drud/ * *" | sudo tee /etc/apt/sources.list.d/ddev.list
+          sudo apt-get -q update
+          sudo apt-get -q -y install libnss3-tools ddev
+          mkcert -install
+          ddev config global --instrumentation-opt-in=false --omit-containers=dba,ddev-ssh-agent
+
+      - name: Create empty PHP DDEV project
+        run: ddev config --project-type=php --project-name=${{env.DDEV_PROJECT}}  --php-version=${{ matrix.php-version }}
+
+      - name: Add Redis, Memcached and Crowdsec
+        run: |
+          ddev get ddev/ddev-redis
+          ddev get ddev/ddev-memcached
+          # override redis.conf
+          ddev get julienloizelet/ddev-tools
+          ddev get julienloizelet/ddev-crowdsec-php
+          ddev get julienloizelet/ddev-playwright 
+
+
+      - name: Start DDEV
+        run: ddev start
+
+      - name: Set BOUNCER_KEY and PROXY_IP env
+        run: |
+          echo "BOUNCER_KEY=$(ddev create-bouncer)" >> $GITHUB_ENV
+          echo "PROXY_IP=$(ddev find-ip ddev-router)" >> $GITHUB_ENV
+
+      - name: Some DEBUG information
+        run: |
+          ddev --version
+          ddev exec php -v
+          ddev exec -s crowdsec crowdsec -version
+          ddev php -r "echo phpversion('memcached');"
+
+      - name: Clone PHP lib Crowdsec files
+        uses: actions/checkout@v3
+        with:
+          path: my-code/standalone-bouncer
+
+      - name: Validate composer.json
+        run: ddev composer validate --strict --working-dir ./${{env.EXTENSION_PATH}}
+
+      - name: Install CrowdSec lib dependencies
+        run: |
+          ddev composer update --working-dir ./${{env.EXTENSION_PATH}}
+
+      - name: Run "Unit Tests"
+        run: |
+          ddev exec /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Unit    
+
+      - name: Prepare PHP Integration and end-to-end tests
+        run: |
+          mkdir ${{ github.workspace }}/cfssl
+          cp -r .ddev/okaeli-add-on/custom_files/crowdsec/cfssl/* ${{ github.workspace }}/cfssl
+          ddev maxmind-download DEFAULT GeoLite2-City /var/www/html/${{env.EXTENSION_PATH}}/tests
+          ddev maxmind-download DEFAULT GeoLite2-Country /var/www/html/${{env.EXTENSION_PATH}}/tests
+          cd ${{env.EXTENSION_PATH}}/tests
+          sha256sum -c GeoLite2-Country.tar.gz.sha256.txt
+          sha256sum -c GeoLite2-City.tar.gz.sha256.txt
+          tar -xf GeoLite2-Country.tar.gz
+          tar -xf GeoLite2-City.tar.gz
+          rm GeoLite2-Country.tar.gz GeoLite2-Country.tar.gz.sha256.txt GeoLite2-City.tar.gz GeoLite2-City.tar.gz.sha256.txt
+
+      - name: Run "IP verification with file_get_contents" test
+        run: |
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
+
+      - name: Run "IP verification with cURL" test
+        run: |
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
+
+      - name: Run "IP verification with TLS" test
+        run: |
+          ddev exec AGENT_TLS_PATH=/var/www/html/cfssl BOUNCER_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php    
+
+      - name: Run "Geolocation with file_get_contents" test
+        run: |
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php
+
+      - name: Run "Geolocation with cURL" test
+        run: |
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php    
+
+      - name: Prepare Standalone Bouncer end-to-end tests
+        run: |
+          cd ${{ github.workspace }}/.ddev
+          ddev nginx-config okaeli-add-on/native/custom_files/crowdsec/crowdsec-prepend-nginx-site.conf
+          cd ${{ github.workspace }}
+          cp ${{env.EXTENSION_PATH}}/tests/end-to-end/settings/base.php.dist crowdsec-lib-settings.php
+          sed -i -e 's/REPLACE_API_KEY/${{ env.BOUNCER_KEY }}/g' crowdsec-lib-settings.php
+          sed -i -e 's/REPLACE_PROXY_IP/${{ env.PROXY_IP }}/g' crowdsec-lib-settings.php
+          sed -i -e 's/REPLACE_FORCED_IP//g' crowdsec-lib-settings.php
+          sed -i -e 's/REPLACE_FORCED_FORWARDED_IP//g' crowdsec-lib-settings.php
+          mv crowdsec-lib-settings.php ${{env.EXTENSION_PATH}}/scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/__scripts__
+          chmod +x test-init.sh
+          ./test-init.sh
+          chmod +x run-tests.sh
+
+      - name: Verify auto_prepend_file directive
+        run: |
+          cd ${{ github.workspace }}
+          cp .ddev/okaeli-add-on/common/custom_files/phpinfo.php ${{env.EXTENSION_PATH}}/tests/scripts/public/phpinfo.php
+          curl -v https://${{env.DDEV_PROJECT}}.ddev.site/${{env.EXTENSION_PATH}}/scripts/public/phpinfo.php
+          PREPENDVERIF=$(curl https://${{env.DDEV_PROJECT}}.ddev.site/${{env.EXTENSION_PATH}}/tests/scripts/public/phpinfo.php | grep -o -E "auto_prepend_file=(.*)php(.*)" | sed 's/<\/tr>//g; s/<\/td>//g;' | tr '\n' '#')
+          if [[ $PREPENDVERIF == "auto_prepend_file=/var/www/html/${{env.EXTENSION_PATH}}/scripts/bounce.php#auto_prepend_file=/var/www/html/${{env.EXTENSION_PATH}}/scripts/bounce.php#" ]]
+          then
+              echo "AUTO PREPEND FILE OK"
+          else
+              echo "AUTO PREPEND FILE KO"
+              echo $PREPENDVERIF
+              exit 1
+          fi
+            
+      - name: Run "live mode with file_get_contents and without geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/1-live-mode.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "Display error with bad settings" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/\x27cache_system\x27 => 1/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/6-display-error-on.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "No display error with bad settings" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/\x27cache_system\x27 => 1/g' scripts/settings.php
+          sed -i  's/\x27display_errors\x27 => true/\x27display_errors\x27 => false/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/5-display-error-off.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "No display error with error while bouncing" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27cache_system\x27 => 1/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/g' scripts/settings.php
+          sed -i  's/\x27forced_test_ip\x27 => \x27\x27/\x27forced_test_ip\x27 => \x27bad-ip\x27/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/5-display-error-off.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "Display error with error while bouncing" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27display_errors\x27 => false/\x27display_errors\x27 => true/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/6-display-error-on.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi      
+
+      - name: Run "live mode with cURL and without geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
+          sed -i  's/\x27forced_test_ip\x27 => \x27bad-ip\x27/\x27forced_test_ip\x27 => \x27\x27/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/1-live-mode.js"    
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "live mode with file_get_contents and with geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27use_curl\x27 => true/\x27use_curl\x27 => false/g' scripts/settings.php
+          sed -i  's/\x27enabled\x27 => false/\x27enabled\x27 => true/g' scripts/settings.php
+          sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27\x27/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/2-live-mode-with-geolocation.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "live mode with cURL and with geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
+          sed -i  's/\x27enabled\x27 => false/\x27enabled\x27 => true/g' scripts/settings.php
+          sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27\x27/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/2-live-mode-with-geolocation.js"   
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "stream mode with file_get_contents and without geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27use_curl\x27 => true/\x27use_curl\x27 => false/g' scripts/settings.php
+          sed -i  's/\x27enabled\x27 => true/\x27enabled\x27 => false/g' scripts/settings.php
+          sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/\x27forced_test_forwarded_ip\x27 => \x27\x27/g' scripts/settings.php
+          sed -i  's/\x27stream_mode\x27 => false/\x27stream_mode\x27 => true/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/3-stream-mode.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "stream mode with cURL and without geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
+          sed -i  's/\x27enabled\x27 => true/\x27enabled\x27 => false/g' scripts/settings.php
+          sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/\x27forced_test_forwarded_ip\x27 => \x27\x27/g' scripts/settings.php
+          sed -i  's/\x27stream_mode\x27 => false/\x27stream_mode\x27 => true/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/3-stream-mode.js"    
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "standalone geolocation" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/4-geolocation.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "live mode with IPv6" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27\x27/\x27forced_test_forwarded_ip\x27 => \x27${{env.IPV6_TEST_IP}}\x27/g' scripts/settings.php
+          sed -i  's/\x27forced_test_ip\x27 => \x27\x27/\x27forced_test_ip\x27 => \x27${{env.IPV6_TEST_PROXY_IP}}\x27/g' scripts/settings.php
+          sed -i -e 's/${{ env.PROXY_IP }}/${{env.IPV6_TEST_PROXY_IP}}/g' scripts/settings.php
+          sed -i  's/\x27stream_mode\x27 => true/\x27stream_mode\x27 => false/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/1-live-mode.js"
+
+      - name: Run "live mode with TLS auth" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27auth_type\x27 => \x27api_key\x27/\x27auth_type\x27 => \x27tls\x27/g' scripts/settings.php
+          sed -i  's/\x27api_key\x27 => \x27${{env.BOUNCER_KEY}}\x27/\x27api_key\x27 => \x27\x27/g' scripts/settings.php
+          sed -i  's/\x27tls_cert_path\x27 => \x27\x27/\x27tls_cert_path\x27 => \x27\/var\/www\/html\/cfssl\/bouncer.pem\x27/g' scripts/settings.php
+          sed -i  's/\x27tls_key_path\x27 => \x27\x27/\x27tls_key_path\x27 => \x27\/var\/www\/html\/cfssl\/bouncer-key.pem\x27/g' scripts/settings.php
+          sed -i  's/\x27tls_ca_cert_path\x27 => \x27\x27/\x27tls_ca_cert_path\x27 => \x27\/var\/www\/html\/cfssl\/ca-chain.pem\x27/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/1-live-mode.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi          
+
+      - name: Run "stream mode with TLS auth and cURL" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27stream_mode\x27 => false/\x27stream_mode\x27 => true/g' scripts/settings.php
+          sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27${{env.IPV6_TEST_IP}}\x27/\x27forced_test_forwarded_ip\x27 => \x27\x27/g' scripts/settings.php
+          sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/3-stream-mode.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+          
+
+      - name: Run "stream mode with TLS auth and cURL and Redis" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/\x27cache_system\x27 => Constants::CACHE_SYSTEM_REDIS/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/3-stream-mode.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "stream mode with TLS auth and cURL and Memcached" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_REDIS/\x27cache_system\x27 => Constants::CACHE_SYSTEM_MEMCACHED/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/3-stream-mode.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi    
+    
