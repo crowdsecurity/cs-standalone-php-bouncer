@@ -200,6 +200,7 @@ module.exports.addDecision = async (
 
 module.exports.deleteAllDecisions = async () => {
     try {
+        console.log(AGENT_CERT_PATH)
         await auth();
         await httpClient.delete("/v1/decisions");
     } catch (error) {

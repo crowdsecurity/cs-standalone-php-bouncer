@@ -54,7 +54,7 @@ FAIL_FAST=true
 
 case $TYPE in
   "host")
-    CROWDSEC_URL_FROM_HOST=$(ddev describe | grep -A 1 "crowdsec" | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g | tail -1)
+    CROWDSEC_URL_FROM_HOST=$(ddev describe | grep -A 1 "crowdsec " | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g | tail -1)
     cd "../"
     DEBUG_STRING="PWDEBUG=1"
     YARN_PATH="./"

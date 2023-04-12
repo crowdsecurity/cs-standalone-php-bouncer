@@ -1,14 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../auto-prepend/settings.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use CrowdSecStandalone\Bouncer;
 
 use CrowdSec\RemediationEngine\Geolocation;
-use CrowdSecBouncer\StandaloneBouncer;
 /**
  * @var $crowdSecStandaloneBouncerConfig
  */
 if (isset($_GET['ip'])) {
+    $settings = include_once __DIR__ . '/../../../scripts/settings.php';
     $requestedIp = $_GET['ip'];
     $dbName = $_GET['db-name'] ?? 'GeoLite2-Country.mmdb';
     $dbType = $_GET['db-type'] ?? 'country';
@@ -21,16 +22,16 @@ if (isset($_GET['ip'])) {
         'type' => 'maxmind',
         'maxmind' => [
             'database_type' => $dbType,
-            'database_path' => '/var/www/html/my-code/crowdsec-bouncer-lib/tests/' . $dbName,
+            'database_path' => '/var/www/html/my-code/standalone-bouncer/tests/' . $dbName,
         ],
     ];
 
     if ($fakeBrokenDb) {
-        $geolocConfig['maxmind']['database_path'] = '/var/www/html/my-code/crowdsec-bouncer-lib/tests/broken.mmdb';
+        $geolocConfig['maxmind']['database_path'] = '/var/www/html/my-code/standalone-bouncer/tests/broken.mmdb';
     }
 
-    $finalConfig = array_merge($crowdSecStandaloneBouncerConfig, ['geolocation' => $geolocConfig]);
-    $bouncer = new StandaloneBouncer($finalConfig);
+    $finalConfig = array_merge($settings, ['geolocation' => $geolocConfig]);
+    $bouncer = new Bouncer($finalConfig);
 
     $cache = $bouncer->getRemediationEngine()->getCacheStorage();
 

@@ -6,11 +6,15 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use CrowdSecStandalone\Bouncer;
+use CrowdSecBouncer\BouncerException;
 
 try {
     $settings = include_once __DIR__ . '/settings.php';
     $bouncer = new Bouncer($settings);
     $bouncer->run();
 } catch (\Throwable $e) {
-    trigger_error('CrowdSec standalone bouncer error while bouncing: ' . $e->getMessage(), \E_USER_WARNING);
+    $displayErrors = $settings['display_errors'] ?? false;
+    if (true === $displayErrors) {
+        throw new BouncerException($e->getMessage(), (int) $e->getCode(), $e);
+    }
 }

@@ -184,7 +184,6 @@ jobs:
       - name: Run "No display error with bad settings" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
-          sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/\x27cache_system\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27display_errors\x27 => true/\x27display_errors\x27 => false/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/

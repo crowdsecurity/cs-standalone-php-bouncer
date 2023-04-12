@@ -215,6 +215,12 @@ https://phpXX.ddev.site/my-code/standalone-bouncer/scripts/public/protected-page
 
 In auto-prepend mode, you can run some end-to-end tests.
 
+To enable auto_prepend_file directive, run:
+
+```bash
+cd crowdsec-bouncer-project/.ddev && ddev nginx-config okaeli-add-on/native/custom_files/crowdsec/crowdsec-prepend-nginx-site.conf
+```
+
 We are using a Jest/Playwright Node.js stack to launch a suite of end-to-end tests.
 
 Tests code is in the `tests/end-to-end` folder. You should have to `chmod +x` the scripts you will find in `tests/end-to-end/__scripts__`.

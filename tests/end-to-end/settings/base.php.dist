@@ -1,8 +1,8 @@
 <?php
 
-use CrowdSecBouncer\Constants;
+use CrowdSecStandalone\Constants;
 
-$crowdSecStandaloneBouncerConfig = [
+return [
     // LAPI Connection
     'auth_type' => 'api_key',
     'api_url' => 'https://crowdsec:8080',

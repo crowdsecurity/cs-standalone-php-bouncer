@@ -30,7 +30,7 @@ return [
      *
      * With the Standalone bouncer, you have to set an array of Ips : ['1.2.3.4', '5.6.7.8'] for example
      * The standalone bouncer will automatically transform this array to an array of comparable IPs arrays:
-     * [['001.002.003.004', '001.002.003.004'], ['005.006.007.008', '005.006.006.007']]
+     * [['001.002.003.004', '001.002.003.004'], ['005.006.007.008', '005.006.007.008']]
      *
      * If you use your own bouncer, you should have to set directly an array of comparable IPs arrays
      */

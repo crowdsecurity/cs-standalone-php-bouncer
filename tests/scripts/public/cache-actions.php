@@ -3,17 +3,17 @@
  * This script is aimed to be called directly in a browser
  * It will act on the LAPI cache depending on the auto-prepend settings file and on the passed parameter.
  */
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../auto-prepend/settings.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use CrowdSecBouncer\StandaloneBouncer;
-use CrowdSecBouncer\Constants;
+use CrowdSecStandalone\Bouncer;
+use CrowdSecStandalone\Constants;
 /**
  * @var $crowdSecStandaloneBouncerConfig
  */
 if (isset($_GET['action']) && in_array($_GET['action'], ['refresh', 'clear', 'prune','captcha-phrase'])) {
     $action = $_GET['action'];
-    $bouncer = new StandaloneBouncer($crowdSecStandaloneBouncerConfig);
+    $settings = include_once __DIR__ . '/../../../scripts/settings.php';
+    $bouncer = new Bouncer($settings);
     $result = "<h1>Cache action has been done: $action</h1>";
 
     switch ($action) {
