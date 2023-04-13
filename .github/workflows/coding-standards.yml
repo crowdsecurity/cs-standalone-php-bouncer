@@ -31,6 +31,7 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, 'chore(') }}
     env:
       EXTENSION_PATH: "my-code/standalone-bouncer"
+      DDEV_PROJECT: "crowdsec-standalone-bouncer"
 
     steps:
 
@@ -45,7 +46,7 @@ jobs:
           ddev config global --instrumentation-opt-in=false --omit-containers=dba,ddev-ssh-agent
 
       - name: Create empty PHP DDEV project
-        run: ddev config --project-type=php --project-name=standalone-bouncer  --php-version=${{ matrix.php-version }}
+        run: ddev config --project-type=php --project-name=${{env.DDEV_PROJECT}}  --php-version=${{ matrix.php-version }}
 
       - name: Add Redis, Memcached and Crowdsec
         run: |

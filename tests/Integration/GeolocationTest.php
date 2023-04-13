@@ -11,9 +11,9 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-
 /**
  * @covers \CrowdSecStandalone\Bouncer::__construct
+ *
  * @uses \CrowdSecStandalone\Bouncer::handleTrustedIpsConfig
  */
 final class GeolocationTest extends TestCase

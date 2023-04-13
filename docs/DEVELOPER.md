@@ -29,7 +29,6 @@ For a quick start, follow the below steps.
 
 #### DDEV installation
 
-This project is fully compatible with DDEV 1.21.4, and it is recommended to use this specific version.
 For the DDEV installation, please follow the [official instructions](https://ddev.readthedocs.io/en/stable/users/install/ddev-installation/).
 
 
@@ -195,20 +194,20 @@ ddev exec USE_CURL=1 AGENT_TLS_PATH=/var/www/html/cfssl  BOUNCER_TLS_PATH=/var/w
 
 #### Auto-prepend mode (standalone mode)
 
-Before using the bouncer in a standalone mode (i.e. with an auto-prepend directive), you should copy the [`scripts/auto-prepend/settings.example.php`](../scripts/auto-prepend/settings.example.php) file to a `scripts/auto-prepend/settings.php` and edit it depending on your needs.
+Before using the bouncer in a standalone mode (i.e. with an `auto_prepend_file` directive), you should copy the [`scripts/settings.php.dist`](../scripts/settings.php.dist) file to a `scripts/settings.php` file and edit it depending on your needs.
 
-Then, to configure the Nginx service in order that it uses an auto-prepend directive pointing to the [`scripts/auto-prepend/bounce.php`](../scripts/auto-prepend/bounce.php) script, please run the following command from the `.ddev` folder:
+Then, to configure the Nginx service in order that it uses an `auto_prepend_file` directive pointing to the [`scripts/bounce.php`](../scripts/bounce.php) script, please run the following command from the `.ddev` folder:
 
 ```bash
-ddev crowdsec-prepend-nginx
+ddev nginx-config okaeli-add-on/native/custom_files/crowdsec/crowdsec-prepend-nginx-site.conf
 ```
 
-With that done, every access to your ddev url (i.e. `https://phpXX.ddev.site` where `XX` is your php version) will be bounce.
+With that done, every access to your ddev url (i.e. `https://crowdsec-standalone-bouncer.ddev.site`) will be bounce.
 
 For example, you should try to browse the following url:
 
 ```
-https://phpXX.ddev.site/my-code/standalone-bouncer/scripts/public/protected-page.php
+https://crowdsec-standalone-bouncer/my-code/standalone-bouncer/tests/scripts/public/protected-page.php
 ```
 
 #### End-to-end tests
@@ -269,7 +268,6 @@ We are using the [PHP Coding Standards Fixer](https://cs.symfony.com/). With dde
 
 ```bash
 ddev phpcsfixer my-code/standalone-bouncer/tools/coding-standards/php-cs-fixer ../
-
 ```
 
 ##### PHPSTAN
@@ -289,7 +287,6 @@ To use the [PHPMD](https://github.com/phpmd/phpmd) tool, you can run:
 
 ```bash
 ddev phpmd ./my-code/standalone-bouncer/tools/coding-standards phpmd/rulesets.xml ../../src
-
 ```
 
 ##### PHPCS and PHPCBF
@@ -359,7 +356,7 @@ ddev restart
 You should enter the `Redis` container:
 
 ```bash
-ddev exec -s redis redis-cli
+ddev redis-cli
 ```
 
 Then, you could play with the `redis-cli` command line tool:
@@ -402,23 +399,23 @@ the max number of keys to dump:
 
 ## Example scripts
 
-You will find some php scripts in the `scripts` folder.
+You will find some php scripts in the `tests/scripts` folder.
 
 **N.B**. : If you are not using DDEV, you can replace all `ddev exec php ` by `php` and specify the right script paths.
 
 ### Clear cache script
 
-To clear your LAPI cache, you can use the [`clear-php`](../scripts/clear-cache.php) script: 
+To clear your LAPI cache, you can use the [`clear-cache.php`](../tests/scripts/clear-cache.php) script: 
 
 ```bash
-ddev exec php my-code/standalone-bouncer/scripts/clear-cache.php <BOUNCER_KEY>
+ddev exec php my-code/standalone-bouncer/tests/scripts/clear-cache.php <BOUNCER_KEY>
 ```
 
 ### Full Live mode example
 
 This example demonstrates how the PHP Lib works with cache when you are using the live mode.
 
-We will use here the [`standalone-check-ip-live.php`](../scripts/standalone-check-ip-live.php).
+We will use here the [`standalone-check-ip-live.php`](../tests/scripts/standalone-check-ip-live.php).
 
 #### Set up the context
 
@@ -440,7 +437,7 @@ Try with the `standalone-check-ip-live.php` file:
 
 
 ```bash
-ddev exec php my-code/standalone-bouncer/scripts/standalone-check-ip-live.php 1.2.3.4 <YOUR_BOUNCER_KEY>
+ddev exec php my-code/standalone-bouncer/tests/scripts/standalone-check-ip-live.php 1.2.3.4 <YOUR_BOUNCER_KEY>
 ```
 
 #### Now ban range 1.2.3.4 to 1.2.3.7 for 12h
@@ -476,7 +473,7 @@ through a certain URL (e.g. `https://crowdsec:8080`).
 ### Use the CrowdSec cli (`cscli`)
 
 
-Please refer to the [CrowdSec cscli documentation](https://docs.crowdsec.net/docs/cscli/cscli/) for an exhaustive
+Please refer to the [CrowdSec cscli documentation](https://docs.crowdsec.net/docs/cscli/) for an exhaustive
 list of commands.
 
 **N.B**.: If you are using DDEV, just replace `cscli` with `ddev exec -s crowdsec cscli`.

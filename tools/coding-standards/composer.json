@@ -9,15 +9,15 @@
     "phpunit/phpunit": "^9.3",
     "phpunit/php-code-coverage": "^9.2.15",
     "mikey179/vfsstream": "^1.6.11",
-    "crowdsec/bouncer": "@dev"
+    "crowdsec/standalone-bouncer": "@dev"
   },
   "autoload": {
     "psr-4": {
-      "CrowdSecBouncer\\Tests\\": "../../tests/"
+      "CrowdSecStandalone\\Tests\\": "../../tests/"
     }
   },
   "repositories": {
-    "crowdsec-bouncer-lib": {
+    "crowdsec-standalone-bouncer": {
       "type": "path",
       "url": "../../"
     }

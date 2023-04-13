@@ -17,6 +17,7 @@ use Psr\Log\LoggerInterface;
 /**
  * @uses   \CrowdSecStandalone\Bouncer::__construct
  * @uses   \CrowdSecStandalone\Bouncer::handleTrustedIpsConfig
+ *
  * @covers \CrowdSecStandalone\Bouncer::getHttpRequestHeader
  * @covers \CrowdSecStandalone\Bouncer::getRemoteIp
  * @covers \CrowdSecStandalone\Bouncer::run

@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-use CrowdSecBouncer\StandaloneBouncer;
+use CrowdSecStandalone\Bouncer;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -30,7 +30,7 @@ $configs = [
     'fs_cache_path' => __DIR__ . '/.cache',
     'stream_mode' => false
 ];
-$bouncer = new StandaloneBouncer($configs, $logger);
+$bouncer = new Bouncer($configs, $logger);
 
 // Ask remediation to LAPI
 

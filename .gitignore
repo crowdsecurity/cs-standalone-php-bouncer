@@ -9,8 +9,8 @@ composer-dev.*
 
 # Scripts
 scripts/settings.php
-scripts/.logs
-scripts/.cache
+.logs
+.cache
 
 # MaxMind databases
 *.mmdb

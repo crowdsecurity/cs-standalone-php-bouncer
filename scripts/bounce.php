@@ -5,16 +5,19 @@
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use CrowdSecStandalone\Bouncer;
 use CrowdSecBouncer\BouncerException;
+use CrowdSecBouncer\Constants;
+use CrowdSecStandalone\Bouncer;
 
 try {
-    $settings = include_once __DIR__ . '/settings.php';
-    $bouncer = new Bouncer($settings);
-    $bouncer->run();
+    $settings = @include_once __DIR__ . '/settings.php';
+    if (isset($settings['bouncing_level']) && Constants::BOUNCING_LEVEL_DISABLED !== $settings['bouncing_level']) {
+        $bouncer = new Bouncer($settings);
+        $bouncer->run();
+    }
 } catch (\Throwable $e) {
-    $displayErrors = $settings['display_errors'] ?? false;
-    if (true === $displayErrors) {
+    $displayErrors = !empty($settings['display_errors']);
+    if ($displayErrors) {
         throw new BouncerException($e->getMessage(), (int) $e->getCode(), $e);
     }
 }

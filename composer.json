@@ -1,7 +1,7 @@
 {
     "name": "crowdsec/standalone-bouncer",
     "description": "The official CrowdSec standalone bouncer for PHP websites",
-    "type": "project",
+    "type": "lib",
     "license": "MIT",
     "minimum-stability": "stable",
     "keywords": [
