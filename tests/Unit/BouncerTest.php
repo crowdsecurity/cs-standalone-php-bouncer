@@ -17,8 +17,8 @@ namespace CrowdSecStandalone\Tests\Unit;
 
 use CrowdSec\Common\Logger\FileLog;
 use CrowdSecBouncer\BouncerException;
-use CrowdSecStandalone\Constants;
 use CrowdSecStandalone\Bouncer;
+use CrowdSecStandalone\Constants;
 use CrowdSecStandalone\Tests\PHPUnitUtil;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -142,7 +142,7 @@ final class BouncerTest extends TestCase
         unset($_SERVER['REMOTE_ADDR']);
         $this->root = vfsStream::setup('/tmp');
         $this->configs['log_directory_path'] = $this->root->url();
-        $this->configs['fs_cache_path'] = $this->root->url() .'/.cache';
+        $this->configs['fs_cache_path'] = $this->root->url() . '/.cache';
         $currentDate = date('Y-m-d');
         $this->debugFile = 'debug-' . $currentDate . '.log';
         $this->prodFile = 'prod-' . $currentDate . '.log';

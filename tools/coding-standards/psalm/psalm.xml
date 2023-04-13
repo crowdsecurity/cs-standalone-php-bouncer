@@ -14,4 +14,16 @@
             <directory name="../../../vendor" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <InvalidArgument>
+            <errorLevel type="info">
+                <file name="../../../scripts/bounce.php"></file>
+            </errorLevel>
+        </InvalidArgument>
+        <MissingFile>
+            <errorLevel type="info">
+                <directory name="../../../scripts"></directory>
+            </errorLevel>
+        </MissingFile>
+    </issueHandlers>
 </psalm>

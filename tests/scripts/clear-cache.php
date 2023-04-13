@@ -1,15 +1,15 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-use CrowdSecBouncer\StandaloneBouncer;
+use CrowdSecStandalone\Bouncer;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 // Parse arguments
 $bouncerApiKey = $argv[1]??null; // required
-$apiUrl = $argv[3] ?: 'https://crowdsec:8080';
+$apiUrl = $argv[2] ?? 'https://crowdsec:8080';
 
 if (!$bouncerApiKey) {
     exit('Usage: php clear-cache.php <api_key>');
@@ -31,7 +31,7 @@ $configs = [
     'api_url' => 'https://crowdsec:8080',
     'fs_cache_path' => __DIR__ . '/.cache',
 ];
-$bouncer = new StandaloneBouncer($configs, $logger);
+$bouncer = new Bouncer($configs, $logger);
 
 // Clear the cache.
 $bouncer->clearCache();

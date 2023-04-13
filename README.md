@@ -1,8 +1,8 @@
 ![CrowdSec Logo](https://raw.githubusercontent.com/crowdsecurity/cs-standalone-php-bouncer/main/docs/images/logo_crowdsec.png)
 
-# CrowdSec Bouncer PHP library
+# CrowdSec standalone PHP bouncer
 
-> The official PHP bouncer library for the CrowdSec LAPI
+> The official standalone PHP bouncer for the CrowdSec LAPI
 
 ![Version](https://img.shields.io/github/v/release/crowdsecurity/cs-standalone-php-bouncer?include_prereleases)
 ![project is maintained](https://img.shields.io/maintenance/yes/2023.svg)
