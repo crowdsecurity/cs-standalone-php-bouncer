@@ -2,6 +2,7 @@
 
 # CrowdSec standalone PHP bouncer
 
+
 ## Installation Guide
 
 
@@ -87,7 +88,8 @@ sudo chown -R www-data /var/www/crowdsec-standalone-bouncer
 
 #### Settings file
 
-Please copy the `scripts/settings.php.dist` file to a `scripts/settings.php` and fill the necessary settings in it (see [Configurations settings](../USER_GUIDE.md#configurations) for more details).
+Please copy the `scripts/settings.php.dist` file to a `scripts/settings.php` file and fill the necessary settings in it 
+(see [Configurations settings](../USER_GUIDE.md#configurations) for more details).
 
 For a quick start, simply search for `YOUR_BOUNCER_API_KEY` in the `settings.php` file and set the bouncer key.
 To obtain a bouncer key, you can run the `cscli` bouncer creation command:
@@ -117,7 +119,7 @@ location ~ \.php$ {
     ...
     ...
     ...
-    fastcgi_param PHP_VALUE "/var/www/crowdsec-standalone-bouncer/scripts/bounce.php";
+    fastcgi_param PHP_VALUE "auto_prepend_file=/var/www/crowdsec-standalone-bouncer/scripts/bounce.php";
 }
 ```
 
