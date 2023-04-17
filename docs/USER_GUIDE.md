@@ -233,6 +233,7 @@ Here is the list of available settings that you could define in the `scripts/set
 
 Some files should not be publicly accessible because they may contain sensitive data:
 
+- Setting file `settings.php`
 - Log files
 - Cache files of the File system cache
 - TLS authentication files
@@ -250,7 +251,7 @@ server {
    ...
    ...
    # Deny all attempts to access some folders of the crowdsec standalone bouncer
-   location ~ /crowdsec/(logs|cache|tls|geolocation) {
+   location ~ /crowdsec/(settings|logs|cache|tls|geolocation) {
            deny all;
    }
    ...
@@ -261,6 +262,7 @@ server {
 If you are using Apache, you could add this kind of directive in a `.htaccess` file:
 
 ```htaccess
+Redirectmatch 403 crowdsec/settings
 Redirectmatch 403 crowdsec/logs/
 Redirectmatch 403 crowdsec/cache/
 Redirectmatch 403 crowdsec/tls/

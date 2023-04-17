@@ -6,6 +6,9 @@
  * It should be copied as a "settings.php" file in the same folder
  *
  * To edit the "settings.php" file, please look at docs/USER_GUIDE.md for possible settings details
+ *
+ * The "settings.php" file must not be publicly accessible
+ *
  */
 
 use CrowdSecStandalone\Constants;
