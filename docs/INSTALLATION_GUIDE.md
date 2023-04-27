@@ -10,6 +10,23 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Prerequisite](#prerequisite)
+    - [Install composer](#install-composer)
+    - [Install GIT](#install-git)
+    - [Install CrowdSec](#install-crowdsec)
+  - [Server and bouncer setup](#server-and-bouncer-setup)
+    - [Bouncer sources copy](#bouncer-sources-copy)
+    - [Files permission](#files-permission)
+    - [Settings file](#settings-file)
+    - [`auto_prepend_file` directive](#auto_prepend_file-directive)
+    - [Stream mode cron task](#stream-mode-cron-task)
+    - [Cache pruning cron task](#cache-pruning-cron-task)
+- [Upgrade](#upgrade)
+  - [Before upgrading](#before-upgrading)
+  - [Retrieve the last tag](#retrieve-the-last-tag)
+  - [Checkout to last tag and update sources](#checkout-to-last-tag-and-update-sources)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
