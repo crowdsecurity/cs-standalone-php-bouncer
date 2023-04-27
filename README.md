@@ -7,7 +7,6 @@
 ![project is maintained](https://img.shields.io/maintenance/yes/2023.svg)
 ![Version](https://img.shields.io/github/v/release/crowdsecurity/cs-standalone-php-bouncer?include_prereleases)
 ![project is maintained](https://img.shields.io/maintenance/yes/2023.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crowdsecurity_cs-standalone-php-bouncer&metric=alert_status)](https://sonarcloud.io/dashboard?id=crowdsecurity_cs-standalone-php-bouncer)
 [![Test suite](https://github.com/crowdsecurity/cs-standalone-php-bouncer/actions/workflows/test-suite.yml/badge.svg)](https://github.com/crowdsecurity/cs-standalone-php-bouncer/actions/workflows/test-suite.yml)
 [![Coding standards](https://github.com/crowdsecurity/cs-standalone-php-bouncer/actions/workflows/coding-standards.yml/badge.svg)](https://github.com/crowdsecurity/cs-standalone-php-bouncer/actions/workflows/coding-standards.yml)
 ![Licence](https://img.shields.io/github/license/crowdsecurity/cs-standalone-php-bouncer)
