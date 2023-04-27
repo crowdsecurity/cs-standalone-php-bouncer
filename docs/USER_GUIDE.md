@@ -8,6 +8,18 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
+- [Description](#description)
+- [Features](#features)
+- [Usage](#usage)
+- [Configurations](#configurations)
+  - [Bouncer behavior](#bouncer-behavior)
+  - [Local API Connection](#local-api-connection)
+  - [Cache](#cache)
+  - [Geolocation](#geolocation)
+  - [Captcha and ban wall settings](#captcha-and-ban-wall-settings)
+  - [Debug](#debug)
+  - [Security note](#security-note)
+
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
