@@ -1,9 +1,49 @@
 {
-    "name": "crowdsec/cs-php-bouncer",
-    "description": "Crowdsec bouncer for PHP",
-    "type": "project",
-    "require": {
-        "crowdsec/bouncer": "0.15.0"
+    "name": "crowdsec/standalone-bouncer",
+    "description": "The official CrowdSec standalone bouncer for PHP websites",
+    "type": "lib",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "keywords": [
+        "security",
+        "crowdsec",
+        "waf",
+        "middleware",
+        "http",
+        "blocker",
+        "bouncer",
+        "captcha",
+        "geoip",
+        "ip",
+        "ip range"
+    ],
+    "autoload": {
+        "psr-4": {
+            "CrowdSecStandalone\\": "src/"
+        }
     },
-    "license": "MIT License"
+    "autoload-dev": {
+        "psr-4": {
+            "CrowdSecStandalone\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "CrowdSec",
+            "email": "info@crowdsec.net"
+        },
+        {
+            "name": "Julien Loizelet",
+            "homepage": "https://github.com/julienloizelet/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.5",
+        "crowdsec/bouncer": "^2.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5.30 || ^9.3",
+        "mikey179/vfsstream": "^1.6.11"
+    }
 }

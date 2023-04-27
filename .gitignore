@@ -1,4 +1,16 @@
-/vendor/
-/settings.php
-.cache
+# Composer
+vendor
+composer.lock
+composer-dev.*
+
+#Tools
+.php-cs-fixer.cache
+.php-cs-fixer.php
+
+# Scripts
+scripts/settings.php
 .logs
+.cache
+
+# MaxMind databases
+*.mmdb
