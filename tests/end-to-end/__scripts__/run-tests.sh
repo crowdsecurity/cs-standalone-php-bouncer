@@ -69,7 +69,7 @@ case $TYPE in
 
   "docker")
     DEBUG_STRING=""
-    YARN_PATH="./var/www/html/my-code/standalone-bouncer/tests/end-to-end"
+    YARN_PATH="./my-code/standalone-bouncer/tests/end-to-end"
     COMMAND="ddev exec -s playwright yarn --cwd ${YARN_PATH} cross-env"
     LAPI_URL_FROM_PLAYWRIGHT=https://crowdsec:8080
     CURRENT_IP=$(ddev find-ip playwright)
@@ -81,7 +81,7 @@ case $TYPE in
 
   "ci")
     DEBUG_STRING="DEBUG=pw:api"
-    YARN_PATH="./var/www/html/my-code/standalone-bouncer/tests/end-to-end"
+    YARN_PATH="./my-code/standalone-bouncer/tests/end-to-end"
     COMMAND="ddev exec -s playwright xvfb-run --auto-servernum -- yarn --cwd ${YARN_PATH} cross-env"
     LAPI_URL_FROM_PLAYWRIGHT=https://crowdsec:8080
     CURRENT_IP=$(ddev find-ip playwright)

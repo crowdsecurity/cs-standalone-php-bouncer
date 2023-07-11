@@ -4,6 +4,7 @@
     "type": "lib",
     "license": "MIT",
     "minimum-stability": "stable",
+    "homepage": "https://github.com/crowdsecurity/cs-standalone-php-bouncer",
     "keywords": [
         "security",
         "crowdsec",
