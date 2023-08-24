@@ -63,7 +63,9 @@ describe(`Live mode run`, () => {
         logContent = await getFileContent(DEBUG_LOG_PATH);
         await expect(logContent).toMatch(
             new RegExp(
-                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${CURRENT_IP}","result":"miss"}`,
+                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${
+                    FORCED_TEST_FORWARDED_IP || CURRENT_IP
+                }","result":"miss"}`,
             ),
         );
         await deleteFileContent(DEBUG_LOG_PATH);
@@ -73,7 +75,9 @@ describe(`Live mode run`, () => {
         logContent = await getFileContent(DEBUG_LOG_PATH);
         await expect(logContent).toMatch(
             new RegExp(
-                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${CURRENT_IP}","result":"hit"}`,
+                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${
+                    FORCED_TEST_FORWARDED_IP || CURRENT_IP
+                }","result":"hit"}`,
             ),
         );
     });
