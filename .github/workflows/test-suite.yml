@@ -72,7 +72,7 @@ jobs:
           ddev exec -s crowdsec crowdsec -version
           ddev php -r "echo phpversion('memcached');"
 
-      - name: Clone PHP lib Crowdsec files
+      - name: Clone standalone bouncer files
         uses: actions/checkout@v3
         with:
           path: my-code/standalone-bouncer
