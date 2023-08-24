@@ -1,5 +1,3 @@
-const { PHP_URL } = process.env;
-
 const PUBLIC_URL =
     "/my-code/standalone-bouncer/tests/scripts/public/protected-page.php";
 const FORCED_TEST_FORWARDED_IP =
@@ -8,27 +6,36 @@ const FORCED_TEST_FORWARDED_IP =
         : null;
 const GEOLOC_ENABLED = process.env.GEOLOC_ENABLED === "true";
 const STREAM_MODE = process.env.STREAM_MODE === "true";
+const DEBUG_MODE = process.env.DEBUG_MODE === "true";
 const GEOLOC_BAD_COUNTRY = "JP";
 const JAPAN_IP = "210.249.74.42";
 const FRANCE_IP = "78.119.253.85";
-const { LAPI_URL_FROM_PLAYWRIGHT } = process.env;
-const { BOUNCER_KEY } = process.env;
 const WATCHER_LOGIN = "watcherLogin";
 const WATCHER_PASSWORD = "watcherPassword";
-const { DEBUG } = process.env;
-const { TIMEOUT } = process.env;
-const { CURRENT_IP } = process.env;
-const { PROXY_IP } = process.env;
-const { AGENT_TLS_PATH } = process.env;
+const {
+    BOUNCER_KEY,
+    DEBUG,
+    CURRENT_IP,
+    LAPI_URL_FROM_PLAYWRIGHT,
+    PROXY_IP,
+    PHP_URL,
+    AGENT_TLS_PATH,
+    CLEAN_CACHE_DURATION,
+    TIMEOUT,
+} = process.env;
 const AGENT_CERT_PATH = `${AGENT_TLS_PATH}/agent.pem`;
 const AGENT_KEY_PATH = `${AGENT_TLS_PATH}/agent-key.pem`;
 const CA_CERT_PATH = `${AGENT_TLS_PATH}/ca-chain.pem`;
+const DEBUG_LOG_PATH = `${AGENT_TLS_PATH}/../my-code/standalone-bouncer/scripts/.logs/debug.log`;
 
 module.exports = {
     PHP_URL,
     BOUNCER_KEY,
+    CLEAN_CACHE_DURATION,
     CURRENT_IP,
     DEBUG,
+    DEBUG_MODE,
+    DEBUG_LOG_PATH,
     FORCED_TEST_FORWARDED_IP,
     LAPI_URL_FROM_PLAYWRIGHT,
     PROXY_IP,

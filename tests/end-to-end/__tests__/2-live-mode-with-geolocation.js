@@ -2,9 +2,10 @@
 const {
     GEOLOC_ENABLED,
     FORCED_TEST_FORWARDED_IP,
+    CLEAN_CACHE_DURATION,
     GEOLOC_BAD_COUNTRY,
     STREAM_MODE,
-    JAPAN_IP
+    JAPAN_IP,
 } = require("../utils/constants");
 
 const {
@@ -24,6 +25,11 @@ describe(`Live mode run with geolocation`, () => {
     it("Should have correct settings", async () => {
         if (STREAM_MODE) {
             const errorMessage = `Stream mode must be disabled for this test`;
+            console.error(errorMessage);
+            throw new Error(errorMessage);
+        }
+        if (CLEAN_CACHE_DURATION !== "1") {
+            const errorMessage = `clean_ip_cache_duration setting must be exactly 1 for this test`;
             console.error(errorMessage);
             throw new Error(errorMessage);
         }

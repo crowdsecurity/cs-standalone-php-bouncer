@@ -1,9 +1,12 @@
 /* eslint-disable no-undef */
 const {
     CURRENT_IP,
+    CLEAN_CACHE_DURATION,
     FORCED_TEST_FORWARDED_IP,
     STREAM_MODE,
+    DEBUG_MODE,
     GEOLOC_ENABLED,
+    DEBUG_LOG_PATH,
 } = require("../utils/constants");
 
 const {
@@ -17,6 +20,8 @@ const {
     wait,
     runCacheAction,
     fillByName,
+    deleteFileContent,
+    getFileContent,
 } = require("../utils/helpers");
 const { addDecision } = require("../utils/watcherClient");
 
@@ -32,15 +37,49 @@ describe(`Live mode run`, () => {
             console.error(errorMessage);
             throw new Error(errorMessage);
         }
+        if (CLEAN_CACHE_DURATION !== "3") {
+            const errorMessage = `clean_ip_cache_duration setting must be exactly 3 for this test`;
+            console.error(errorMessage);
+            throw new Error(errorMessage);
+        }
         if (GEOLOC_ENABLED) {
             const errorMessage = "Geolocation MUST be disabled to test this.";
+            console.error(errorMessage);
+            throw new Error(errorMessage);
+        }
+        if (!DEBUG_MODE) {
+            const errorMessage = `Debug mode must be enabled for this test`;
             console.error(errorMessage);
             throw new Error(errorMessage);
         }
     });
 
     it("Should display the homepage with no remediation", async () => {
+        // Empty log file before test
+        await deleteFileContent(DEBUG_LOG_PATH);
+        let logContent = await getFileContent(DEBUG_LOG_PATH);
+        await expect(logContent).toBe("");
         await publicHomepageShouldBeAccessible();
+        logContent = await getFileContent(DEBUG_LOG_PATH);
+        await expect(logContent).toMatch(
+            new RegExp(
+                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${
+                    FORCED_TEST_FORWARDED_IP || CURRENT_IP
+                }","result":"miss"}`,
+            ),
+        );
+        await deleteFileContent(DEBUG_LOG_PATH);
+        logContent = await getFileContent(DEBUG_LOG_PATH);
+        await expect(logContent).toBe("");
+        await publicHomepageShouldBeAccessible();
+        logContent = await getFileContent(DEBUG_LOG_PATH);
+        await expect(logContent).toMatch(
+            new RegExp(
+                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${
+                    FORCED_TEST_FORWARDED_IP || CURRENT_IP
+                }","result":"hit"}`,
+            ),
+        );
     });
 
     it("Should display a captcha wall with mentions", async () => {
@@ -48,6 +87,8 @@ describe(`Live mode run`, () => {
             15 * 60,
             FORCED_TEST_FORWARDED_IP || CURRENT_IP,
         );
+        // Wait because clean ip cache duration is 3 seconds
+        await wait(2000);
         await publicHomepageShouldBeCaptchaWallWithMentions();
     });
 
