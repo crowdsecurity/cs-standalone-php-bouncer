@@ -190,6 +190,8 @@ jobs:
       - name: Run "No display error with bad settings" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27display_errors\x27 => true/\x27display_errors\x27 => false/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
@@ -206,6 +208,8 @@ jobs:
       - name: Run "No display error with error while bouncing" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27cache_system\x27 => 1/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/g' scripts/settings.php
           sed -i  's/\x27forced_test_ip\x27 => \x27\x27/\x27forced_test_ip\x27 => \x27bad-ip\x27/g' scripts/settings.php
           cat scripts/settings.php
@@ -223,6 +227,8 @@ jobs:
       - name: Run "Display error with error while bouncing" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27display_errors\x27 => false/\x27display_errors\x27 => true/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
@@ -258,6 +264,8 @@ jobs:
       - name: Run "live mode with file_get_contents and with geolocation" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27use_curl\x27 => true/\x27use_curl\x27 => false/g' scripts/settings.php
           sed -i  's/\x27enabled\x27 => false/\x27enabled\x27 => true/g' scripts/settings.php
           sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27\x27/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/g' scripts/settings.php
@@ -276,6 +284,8 @@ jobs:
       - name: Run "live mode with cURL and with geolocation" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
           sed -i  's/\x27enabled\x27 => false/\x27enabled\x27 => true/g' scripts/settings.php
           sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27\x27/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/g' scripts/settings.php
@@ -315,6 +325,8 @@ jobs:
       - name: Run "stream mode with cURL and without geolocation" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
           sed -i  's/\x27enabled\x27 => true/\x27enabled\x27 => false/g' scripts/settings.php
           sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/\x27forced_test_forwarded_ip\x27 => \x27\x27/g' scripts/settings.php
@@ -333,6 +345,9 @@ jobs:
 
       - name: Run "standalone geolocation" test
         run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
           ./__scripts__/run-tests.sh ci "./__tests__/4-geolocation.js"
           PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
@@ -360,6 +375,8 @@ jobs:
       - name: Run "live mode with TLS auth" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Increase cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
           sed -i  's/\x27auth_type\x27 => \x27api_key\x27/\x27auth_type\x27 => \x27tls\x27/g' scripts/settings.php
           sed -i  's/\x27api_key\x27 => \x27${{env.BOUNCER_KEY}}\x27/\x27api_key\x27 => \x27\x27/g' scripts/settings.php
           sed -i  's/\x27tls_cert_path\x27 => \x27\x27/\x27tls_cert_path\x27 => \x27\/var\/www\/html\/cfssl\/bouncer.pem\x27/g' scripts/settings.php
@@ -401,6 +418,8 @@ jobs:
       - name: Run "stream mode with TLS auth and cURL and Redis" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/\x27cache_system\x27 => Constants::CACHE_SYSTEM_REDIS/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
@@ -417,6 +436,8 @@ jobs:
       - name: Run "stream mode with TLS auth and cURL and Memcached" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_REDIS/\x27cache_system\x27 => Constants::CACHE_SYSTEM_MEMCACHED/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
