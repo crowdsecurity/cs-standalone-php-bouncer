@@ -11,7 +11,7 @@ on:
     - cron: '0 0 * * THU'
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   # Allow ddev get to use a GitHub token to prevent rate limiting by tests
@@ -156,7 +156,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Increase cache duration for clean IP
-          sed -i  's/\clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
           ./__scripts__/run-tests.sh ci "./__tests__/1-live-mode.js"
@@ -173,7 +173,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Decrease cache duration for clean IP
-          sed -i  's/\clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_PHPFS/\x27cache_system\x27 => 1/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
@@ -239,6 +239,8 @@ jobs:
       - name: Run "live mode with cURL and without geolocation" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Increase cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
           sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
           sed -i  's/\x27forced_test_ip\x27 => \x27bad-ip\x27/\x27forced_test_ip\x27 => \x27\x27/g' scripts/settings.php
           cat scripts/settings.php
@@ -292,6 +294,8 @@ jobs:
       - name: Run "stream mode with file_get_contents and without geolocation" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27use_curl\x27 => true/\x27use_curl\x27 => false/g' scripts/settings.php
           sed -i  's/\x27enabled\x27 => true/\x27enabled\x27 => false/g' scripts/settings.php
           sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27${{env.JP_TEST_IP}}\x27/\x27forced_test_forwarded_ip\x27 => \x27\x27/g' scripts/settings.php
@@ -343,6 +347,8 @@ jobs:
       - name: Run "live mode with IPv6" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Increase cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
           sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27\x27/\x27forced_test_forwarded_ip\x27 => \x27${{env.IPV6_TEST_IP}}\x27/g' scripts/settings.php
           sed -i  's/\x27forced_test_ip\x27 => \x27\x27/\x27forced_test_ip\x27 => \x27${{env.IPV6_TEST_PROXY_IP}}\x27/g' scripts/settings.php
           sed -i -e 's/${{ env.PROXY_IP }}/${{env.IPV6_TEST_PROXY_IP}}/g' scripts/settings.php
@@ -374,6 +380,8 @@ jobs:
       - name: Run "stream mode with TLS auth and cURL" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Decrease cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 3/\x27clean_ip_cache_duration\x27 => 1/g' scripts/settings.php
           sed -i  's/\x27stream_mode\x27 => false/\x27stream_mode\x27 => true/g' scripts/settings.php
           sed -i  's/\x27forced_test_forwarded_ip\x27 => \x27${{env.IPV6_TEST_IP}}\x27/\x27forced_test_forwarded_ip\x27 => \x27\x27/g' scripts/settings.php
           sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
@@ -421,12 +429,3 @@ jobs:
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
           fi    
-
-      # keepalive-workflow adds a dummy commit if there's no other action here, keeps
-      # GitHub from turning off tests after 60 days
-      - uses: gautamkrishnar/keepalive-workflow@v1
-        if: always()
-        with:
-          commit_message: "chore(*): Automated commit to keep the repository active"
-          time_elapsed: 45
-    

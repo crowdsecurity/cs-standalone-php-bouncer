@@ -1,11 +1,23 @@
 /* eslint-disable no-undef */
-const { JAPAN_IP, FRANCE_IP } = require("../utils/constants");
+const {
+    JAPAN_IP,
+    FRANCE_IP,
+    CLEAN_CACHE_DURATION,
+} = require("../utils/constants");
 
 const { removeAllDecisions, runGeolocationTest } = require("../utils/helpers");
 
 describe(`Geolocation standalone run`, () => {
     beforeAll(async () => {
         await removeAllDecisions();
+    });
+
+    it("Should have correct settings", async () => {
+        if (CLEAN_CACHE_DURATION !== "1") {
+            const errorMessage = `clean_ip_cache_duration setting must be exactly 1 for this test`;
+            console.error(errorMessage);
+            throw new Error(errorMessage);
+        }
     });
 
     it("Should get JP", async () => {
