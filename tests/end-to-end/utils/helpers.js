@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 const fs = require("fs");
 
+const { log } = require("console");
 const { addDecision, deleteAllDecisions } = require("./watcherClient");
 const { PHP_URL, TIMEOUT, PUBLIC_URL } = require("./constants");
 

@@ -46,7 +46,9 @@ PROXY_IP=$(ddev find-ip ddev-router)
 BOUNCER_KEY=$(ddev exec grep "'api_key'" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | tail -1 | sed 's/api_key//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 GEOLOC_ENABLED=$(ddev exec grep -E "'enabled'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/enabled//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 FORCED_TEST_FORWARDED_IP=$(ddev exec grep -E "'forced_test_forwarded_ip'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/forced_test_forwarded_ip//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
+CLEAN_CACHE_DURATION=$(ddev exec grep -E "'clean_ip_cache_duration'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/clean_ip_cache_duration//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 STREAM_MODE=$(ddev exec grep -E "'stream_mode'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/stream_mode//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
+DEBUG_MODE=$(ddev exec grep -E "'debug_mode'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/debug_mode//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 JEST_PARAMS="--bail=true  --runInBand --verbose"
 # If FAIL_FAST, will exit on first individual test fail
 # @see CustomEnvironment.js
@@ -54,7 +56,7 @@ FAIL_FAST=true
 
 case $TYPE in
   "host")
-    CROWDSEC_URL_FROM_HOST=$(ddev describe | grep -A 1 "crowdsec " | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g | tail -1)
+    CROWDSEC_URL_FROM_HOST="$(ddev describe | grep -A 1 "crowdsec " | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g |  sed -e 's|,.*||g' | tail -1)"
     cd "../"
     DEBUG_STRING="PWDEBUG=1"
     YARN_PATH="./"
@@ -109,6 +111,8 @@ BOUNCER_KEY="$BOUNCER_KEY" \
 PROXY_IP="$PROXY_IP"  \
 GEOLOC_ENABLED="$GEOLOC_ENABLED" \
 STREAM_MODE="$STREAM_MODE" \
+CLEAN_CACHE_DURATION="$CLEAN_CACHE_DURATION" \
+DEBUG_MODE="$DEBUG_MODE" \
 FORCED_TEST_FORWARDED_IP="$FORCED_TEST_FORWARDED_IP" \
 LAPI_URL_FROM_PLAYWRIGHT=$LAPI_URL_FROM_PLAYWRIGHT \
 CURRENT_IP="$CURRENT_IP" \
