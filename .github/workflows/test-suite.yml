@@ -127,7 +127,7 @@ jobs:
           ddev nginx-config okaeli-add-on/native/custom_files/crowdsec/crowdsec-prepend-nginx-site.conf
           cd ${{ github.workspace }}
           cp ${{env.EXTENSION_PATH}}/tests/end-to-end/settings/base.php.dist crowdsec-lib-settings.php
-          sed -i -e 's/REPLACE_API_KEY/${{ env.BOUNCER_KEY }}/g' crowdsec-lib-settings.php
+          sed -i -e 's#REPLACE_API_KEY#${{ env.BOUNCER_KEY }}#g' crowdsec-lib-settings.php
           sed -i -e 's/REPLACE_PROXY_IP/${{ env.PROXY_IP }}/g' crowdsec-lib-settings.php
           sed -i -e 's/REPLACE_FORCED_IP//g' crowdsec-lib-settings.php
           sed -i -e 's/REPLACE_FORCED_FORWARDED_IP//g' crowdsec-lib-settings.php
