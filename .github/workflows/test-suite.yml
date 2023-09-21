@@ -378,7 +378,7 @@ jobs:
           # Increase cache duration for clean IP
           sed -i  's/\x27clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
           sed -i  's/\x27auth_type\x27 => \x27api_key\x27/\x27auth_type\x27 => \x27tls\x27/g' scripts/settings.php
-          sed -i  's/\x27api_key\x27 => \x27${{env.BOUNCER_KEY}}\x27/\x27api_key\x27 => \x27\x27/g' scripts/settings.php
+          sed -i  's#\x27api_key\x27 => \x27${{env.BOUNCER_KEY}}\x27#\x27api_key\x27 => \x27\x27#g' scripts/settings.php
           sed -i  's/\x27tls_cert_path\x27 => \x27\x27/\x27tls_cert_path\x27 => \x27\/var\/www\/html\/cfssl\/bouncer.pem\x27/g' scripts/settings.php
           sed -i  's/\x27tls_key_path\x27 => \x27\x27/\x27tls_key_path\x27 => \x27\/var\/www\/html\/cfssl\/bouncer-key.pem\x27/g' scripts/settings.php
           sed -i  's/\x27tls_ca_cert_path\x27 => \x27\x27/\x27tls_ca_cert_path\x27 => \x27\/var\/www\/html\/cfssl\/ca-chain.pem\x27/g' scripts/settings.php
