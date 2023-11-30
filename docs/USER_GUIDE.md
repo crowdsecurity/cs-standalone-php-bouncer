@@ -114,8 +114,12 @@ Here is the list of available settings that you could define in the `scripts/set
 - `api_url`: Define the URL to your Local API server, default to `http://localhost:8080`.
 
 
-- `api_timeout`: In seconds. The timeout when calling Local API. Default to 120 sec. If set to a negative value,
-  timeout will be unlimited.
+- `api_timeout`: In seconds. The global timeout when calling Local API. Default to 120 sec. If set to a negative value
+  or 0, timeout will be unlimited.
+
+
+- `api_connect_timeout`: In seconds. **Only for curl**. The timeout for the connection phase when calling Local 
+  API. Default to 300 sec. If set to a 0, timeout will be unlimited.
 
 
 - `use_curl`: By default, this lib call the REST Local API using `file_get_contents` method (`allow_url_fopen` is required).
