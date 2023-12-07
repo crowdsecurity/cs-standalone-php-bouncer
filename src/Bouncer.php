@@ -109,7 +109,7 @@ class Bouncer extends AbstractBouncer
             $finalForwardConfigs = [];
             foreach ($forwardConfigs as $forwardConfig) {
                 if (!\is_string($forwardConfig)) {
-                    throw new BouncerException("'trust_ip_forward_array' config must be an array of string");
+                    throw new BouncerException('\'trust_ip_forward_array\' config must be an array of string');
                 }
                 $parsedString = Factory::parseAddressString($forwardConfig, 3);
                 if (!empty($parsedString)) {

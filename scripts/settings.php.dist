@@ -176,8 +176,11 @@ return [
      */
     'api_url' => Constants::DEFAULT_LAPI_URL,
 
-    // In seconds. The timeout when calling LAPI. Must be greater or equal than 1. Defaults to 1 sec.
+    // In seconds. The timeout when calling LAPI. Must be greater or equal than 1. Defaults to 120 sec.
     'api_timeout' => Constants::API_TIMEOUT,
+
+    // In seconds. The connection timeout when calling LAPI. Must be greater or equal than 1. Defaults to 300 sec.
+    'api_connect_timeout' => Constants::API_CONNECT_TIMEOUT,
 
     // ============================================================================#
     // Remediation engine configs
