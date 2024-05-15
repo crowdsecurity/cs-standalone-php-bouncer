@@ -21,4 +21,5 @@ jobs:
       # keepalive-workflow keeps GitHub from turning off tests after 60 days
       - uses: gautamkrishnar/keepalive-workflow@v2
         with:
-          time_elapsed: 55
+          time_elapsed: 45
+          workflow_files: "test-suite.yml"
