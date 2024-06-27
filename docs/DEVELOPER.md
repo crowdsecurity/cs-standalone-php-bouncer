@@ -45,6 +45,7 @@
     - [Create a bouncer](#create-a-bouncer)
     - [Create a watcher](#create-a-watcher)
   - [Use the web container to call LAPI](#use-the-web-container-to-call-lapi)
+- [Update documentation table of contents](#update-documentation-table-of-contents)
 - [Commit message](#commit-message)
   - [Allowed message `type` values](#allowed-message-type-values)
 - [Release process](#release-process)
@@ -598,6 +599,24 @@ curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions?ip=1.
 curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions/stream?startup=true | jq
 curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions/stream | jq
 ```
+
+
+## Update documentation table of contents
+
+To update the table of contents in the documentation, you can use [the `doctoc` tool](https://github.com/thlorenz/doctoc).
+
+First, install it:
+
+```bash
+npm install -g doctoc
+```
+
+Then, run it in the documentation folder:
+
+```bash
+doctoc docs/*
+```
+
 
 ## Commit message
 
