@@ -19,6 +19,7 @@ use CrowdSec\Common\Logger\FileLog;
 use CrowdSecBouncer\BouncerException;
 use CrowdSecStandalone\Bouncer;
 use CrowdSecStandalone\Constants;
+use CrowdSec\LapiClient\Constants as LapiConstants;
 use CrowdSecStandalone\Tests\PHPUnitUtil;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -113,7 +114,9 @@ final class BouncerTest extends TestCase
         'tls_verify_peer' => true,
         'tls_ca_cert_path' => '',
         'api_key' => 'unit-test',
-        'api_url' => Constants::DEFAULT_LAPI_URL,
+        'api_url' => LapiConstants::DEFAULT_LAPI_URL,
+        'app_sec_url' => LapiConstants::DEFAULT_APPSEC_URL,
+        'use_app_sec' => false,
         'api_timeout' => 1,
         // ============================================================================#
         // Remediation engine configs

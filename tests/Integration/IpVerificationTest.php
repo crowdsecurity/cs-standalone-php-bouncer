@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace CrowdSecStandalone\Tests\Integration;
 
 use CrowdSec\Common\Logger\FileLog;
+use CrowdSec\LapiClient\Bouncer as BouncerClient;
+use CrowdSec\RemediationEngine\CacheStorage\AbstractCache;
 use CrowdSec\RemediationEngine\CacheStorage\CacheStorageException;
+use CrowdSec\RemediationEngine\CacheStorage\PhpFiles;
+use CrowdSec\RemediationEngine\LapiRemediation;
+use CrowdSecBouncer\AbstractBouncer;
 use CrowdSecBouncer\BouncerException;
 use CrowdSecBouncer\Constants;
 use CrowdSecStandalone\Bouncer;
@@ -25,6 +30,13 @@ use Psr\Log\LoggerInterface;
  * @covers \CrowdSecStandalone\Bouncer::getHttpMethod
  * @covers \CrowdSecStandalone\Bouncer::getPostedVariable
  * @covers \CrowdSecStandalone\Bouncer::getRequestUri
+ *
+ * @covers \CrowdSecStandalone\Bouncer::getRequestHeaders
+ * @covers \CrowdSecStandalone\Bouncer::getRequestHost
+ * @covers \CrowdSecStandalone\Bouncer::getRequestRawBody
+ * @covers \CrowdSecStandalone\Bouncer::getRequestUserAgent
+ *
+ *
  */
 final class IpVerificationTest extends TestCase
 {
@@ -537,7 +549,7 @@ final class IpVerificationTest extends TestCase
      * @return void
      *
      * @throws BouncerException
-     * @throws \CrowdSec\RemediationEngine\CacheStorage\CacheStorageException
+     * @throws CacheStorageException
      * @throws \PHPUnit\Framework\ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
@@ -582,12 +594,168 @@ final class IpVerificationTest extends TestCase
     }
 
     /**
-     * @group captcha
+     * @group appsec
      *
      * @return void
      *
      * @throws BouncerException
      * @throws \CrowdSec\RemediationEngine\CacheStorage\CacheStorageException
+     * @throws \PHPUnit\Framework\ExpectationFailedException
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     */
+    public function testAppSecFlow()
+    {
+        $this->watcherClient->setSimpleDecision('ban');
+        // Init bouncer
+        $bouncerConfigs = [
+            'auth_type' => $this->useTls ? Constants::AUTH_TLS : Constants::AUTH_KEY,
+            'api_key' => TestHelpers::getBouncerKey(),
+            'api_url' => TestHelpers::getLapiUrl(),
+            'app_sec_url' => TestHelpers::getAppSecUrl(),
+            'use_app_sec' => true,
+            'stream_mode' => false,
+            'cache_system' => Constants::CACHE_SYSTEM_PHPFS,
+            'fs_cache_path' => $this->root->url() . '/.cache',
+            'forced_test_ip' => TestHelpers::BAD_IP,
+        ];
+        if ($this->useTls) {
+            $this->addTlsConfig($bouncerConfigs, $this->useTls);
+        }
+
+        $bouncer = new StandaloneBouncerNoResponse($bouncerConfigs, $this->logger);
+        $bouncer->clearCache();
+
+        // TEST 1 : ban from LAPI
+
+        $cache = $bouncer->getRemediationEngine()->getCacheStorage();
+        $cacheKey = $cache->getCacheKey(Constants::SCOPE_IP, TestHelpers::BAD_IP);
+        $item = $cache->getItem($cacheKey);
+        $this->assertEquals(
+            false,
+            $item->isHit(),
+            'The remediation should not be cached'
+        );
+
+        $bouncer->bounceCurrentIp();
+
+        $item = $cache->getItem($cacheKey);
+        $this->assertEquals(
+            true,
+            $item->isHit(),
+            'The remediation should be cached'
+        );
+        $cachedItem = $item->get();
+        $this->assertEquals(
+            'ban',
+            $cachedItem[0][0],
+            'The remediation should be ban'
+        );
+
+        // Test 2: ban from APP SEC
+        $this->watcherClient->deleteAllDecisions();
+        $bouncer->clearCache();
+
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/.env';
+        $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0';
+        $_SERVER['CONTENT_TYPE'] = 'application/json';
+        unset($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_EXPOSE']);
+
+        $bouncer->bounceCurrentIp();
+        $this->assertEquals(
+            'Mozilla/5.0',
+            $bouncer->getRequestUserAgent(),
+            'User Agent should be ok'
+        );
+        $this->assertEquals(
+            'example.com',
+            $bouncer->getRequestHost(),
+            'HTTP Host should be ok'
+        );
+        $this->assertEquals(
+            '/.env',
+            $bouncer->getRequestUri(),
+            'Request URI should be ok'
+        );
+        $this->assertEquals(
+            'GET',
+            $bouncer->getHttpMethod(),
+            'HTTP Method should be ok'
+        );
+        $this->assertEquals(
+            ['Host' => 'example.com', 'User-Agent' => 'Mozilla/5.0', 'Content-Type' => 'application/json'],
+            $bouncer->getRequestHeaders(),
+            'Request headers should be ok'
+        );
+        $this->assertEquals(
+            '',
+            $bouncer->getRequestRawBody(),
+            'Request raw body should be ok'
+        );
+
+
+        $cache = $bouncer->getRemediationEngine()->getCacheStorage();
+        $cacheKey = $cache->getCacheKey(Constants::SCOPE_IP, TestHelpers::BAD_IP);
+        $item = $cache->getItem($cacheKey);
+        $cachedItem = $item->get();
+        $this->assertEquals(
+            'bypass',
+            $cachedItem[0][0],
+            'The LAPI remediation should be bypass and has been stored'
+        );
+
+        $originCountItem = $cache->getItem(AbstractCache::ORIGINS_COUNT)->get();
+        $this->assertEquals(
+            1,
+            $originCountItem['appsec'],
+            'The origin count for appsec should be 1'
+        );
+        $this->assertEquals(
+            1,
+            $originCountItem['clean'],
+            'The origin count for clean should be 1'
+        );
+
+        // Test 3: clean IP and clean request
+        $bouncer->clearCache();
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/home.php';
+        $bouncer->bounceCurrentIp();
+        $cache = $bouncer->getRemediationEngine()->getCacheStorage();
+        $cacheKey = $cache->getCacheKey(Constants::SCOPE_IP, TestHelpers::BAD_IP);
+        $item = $cache->getItem($cacheKey);
+        $cachedItem = $item->get();
+        $this->assertEquals(
+            'bypass',
+            $cachedItem[0][0],
+            'The LAPI remediation should be bypass and has been stored'
+        );
+
+        $originCountItem = $cache->getItem(AbstractCache::ORIGINS_COUNT)->get();
+        $this->assertEquals(
+            1,
+            $originCountItem['clean_appsec'],
+            'The origin count for clean_appsec should be 1'
+        );
+        $this->assertEquals(
+            1,
+            $originCountItem['clean'],
+            'The origin count for clean should be 1'
+        );
+    }
+
+
+    /**
+     * @group captcha
+     *
+     * @return void
+     *
+     * @throws BouncerException
+     * @throws CacheStorageException
      * @throws \PHPUnit\Framework\ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */

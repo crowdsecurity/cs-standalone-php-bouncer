@@ -67,6 +67,11 @@ class TestHelpers
         return getenv('LAPI_URL');
     }
 
+    public static function getAppSecUrl(): string
+    {
+        return getenv('APP_SEC_URL');
+    }
+
     public static function getBouncerKey(): string
     {
         if ($bouncerKey = getenv('BOUNCER_KEY')) {

@@ -28,7 +28,7 @@ class Bouncer extends AbstractBouncer
      * @throws BouncerException
      * @throws CacheStorageException
      */
-    public function __construct(array $configs, LoggerInterface $logger = null)
+    public function __construct(array $configs, ?LoggerInterface $logger = null)
     {
         $logConfigs = array_merge($configs, ['no_rotation' => true]);
         $this->logger = $logger ?: new FileLog($logConfigs, 'php_standalone_bouncer');
@@ -83,12 +83,60 @@ class Bouncer extends AbstractBouncer
         return $_SERVER['REMOTE_ADDR'] ?? '';
     }
 
+    public function getRequestHeaders(): array
+    {
+        $allHeaders = [];
+
+        if (function_exists('getallheaders')){
+            // @codeCoverageIgnoreStart
+            $allHeaders = getallheaders();
+            // @codeCoverageIgnoreEnd
+        } else {
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                    $allHeaders[$name] = $value;
+                } else if ($name == 'CONTENT_TYPE') {
+                    $allHeaders['Content-Type'] = $value;
+                }
+            }
+        }
+        // Remove Content-Length header for AppSec
+        unset($allHeaders['Content-Length']);
+
+        return $allHeaders;
+    }
+
+    /**
+     * Get current request host.
+     */
+    public function getRequestHost(): string
+    {
+        return $_SERVER['HTTP_HOST'] ?? '';
+    }
+
+    /**
+     * Get current request raw body.
+     */
+    public function getRequestRawBody(): string
+    {
+        return file_get_contents('php://input');
+    }
+
     /**
      * The current URI.
      */
     public function getRequestUri(): string
     {
         return $_SERVER['REQUEST_URI'] ?? '';
+    }
+
+    /**
+     * Get current request user agent.
+     */
+    public function getRequestUserAgent(): string
+    {
+        return $_SERVER['HTTP_USER_AGENT'] ?? '';
     }
 
     /**

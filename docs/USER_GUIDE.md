@@ -32,6 +32,8 @@ This project provides a CrowdSec "standalone" bouncer for PHP-based websites. It
 - CrowdSec Local API Support
   - Handle `ip`, `range` and `country` scoped decisions
   - `Live mode` or `Stream mode`
+  - API key or TLS authentication
+  - AppSec remediation support (only with API key authentication)
 - Support IpV4 and Ipv6 (Ipv6 range decisions are yet only supported in `Live mode`) 
 - Large PHP matrix compatibility: 7.2, 7.3, 7.4, 8.0, 8.1, 8.2 and 8.3
 - Built-in support for the most known cache systems Redis, Memcached and PhpFiles
@@ -78,6 +80,8 @@ Here is the list of available settings that you could define in the `scripts/set
 
 - `stream_mode`: true to enable stream mode, false to enable the live mode. Default to false. By default, the `live mode` is enabled. The first time a user connects to your website, this mode means that the IP will be checked directly by the CrowdSec API. The rest of your user’s browsing will be even more transparent thanks to the fully customizable cache system. But you can also activate the `stream mode`. This mode allows you to constantly feed the bouncer with the malicious IP list via a background task (CRON), making it to be even faster when checking the IP of your visitors. Besides, if your site has a lot of unique visitors at the same time, this will not influence the traffic to the API of your CrowdSec instance.
 
+- `use_app_sec`: true to enable AppSec remediation. Default to false. If you enable this setting, you need to define the `app_sec_url` setting below. If true, and if the initial Lapi remediation is a `bypass`, a remediation based on the current request will be retrieved from the AppSec endpoint and will be used as final remediation. This feature is only available if you use `api_key` as `auth_type`.
+
 ### Local API Connection
 
 - `auth_type`: Select from `api_key` and `tls`. Choose if you want to use an API-KEY or a TLS (pki) authentification.
@@ -113,6 +117,7 @@ Here is the list of available settings that you could define in the `scripts/set
 
 - `api_url`: Define the URL to your Local API server, default to `http://localhost:8080`.
 
+- `app_sec_url`: Define the URL to your AppSec server, default to `http://localhost:7422`. Only needed if you use AppSec remediation (see `use_app_sec` setting above).
 
 - `api_timeout`: In seconds. The global timeout when calling Local API. Default to 120 sec. If set to a negative value
   or 0, timeout will be unlimited.

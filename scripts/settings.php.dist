@@ -12,6 +12,7 @@
  */
 
 use CrowdSecStandalone\Constants;
+use CrowdSec\LapiClient\Constants as LapiConstants;
 
 return [
     // ============================================================================#
@@ -43,7 +44,12 @@ return [
      * Set 'use_curl' to true in order to use cURL request instead (curl is in then required).
      */
     'use_curl' => false,
-
+    /**
+     * By default, we use the LAPI to get the decision. Set 'use_app_sec' to true in order to also the AppSec endpoint,
+     * in case of no decision from LAPI ("bypass" remediation).
+     * If true, the AppSec URL must be set in the 'app_sec_url' setting below.
+     */
+    'use_app_sec' => false,
     /**
      * array of URIs that will not be bounced.
      */
@@ -174,7 +180,9 @@ return [
      * If you have installed the CrowdSec agent on your server, it should be "http://localhost:8080" or
      * "https://localhost:8080"
      */
-    'api_url' => Constants::DEFAULT_LAPI_URL,
+    'api_url' => LapiConstants::DEFAULT_LAPI_URL,
+     // Define the AppSec URL of your LAPI server, default to http://localhost:7422.
+    'app_sec_url' => LapiConstants::DEFAULT_APPSEC_URL,
 
     // In seconds. The timeout when calling LAPI. Must be greater or equal than 1. Defaults to 120 sec.
     'api_timeout' => Constants::API_TIMEOUT,
