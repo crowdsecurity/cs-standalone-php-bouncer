@@ -10,12 +10,34 @@
 
 - [Local development](#local-development)
   - [DDEV setup](#ddev-setup)
+    - [DDEV installation](#ddev-installation)
+    - [Prepare DDEV PHP environment](#prepare-ddev-php-environment)
   - [DDEV Usage](#ddev-usage)
+    - [Add CrowdSec bouncer and watcher](#add-crowdsec-bouncer-and-watcher)
+    - [Use composer to update or install the lib](#use-composer-to-update-or-install-the-lib)
+    - [Find IP of your docker services](#find-ip-of-your-docker-services)
+    - [Unit test](#unit-test)
+    - [Integration test](#integration-test)
+    - [Auto-prepend mode (standalone mode)](#auto-prepend-mode-standalone-mode)
+    - [End-to-end tests](#end-to-end-tests)
+    - [Coding standards](#coding-standards)
+    - [Generate CrowdSec tools and settings on start](#generate-crowdsec-tools-and-settings-on-start)
+    - [Redis debug](#redis-debug)
+    - [Memcached debug](#memcached-debug)
 - [Example scripts](#example-scripts)
   - [Clear cache script](#clear-cache-script)
   - [Full Live mode example](#full-live-mode-example)
+    - [Set up the context](#set-up-the-context)
+    - [Get the remediation the clean IP "1.2.3.4"](#get-the-remediation-the-clean-ip-1234)
+    - [Now ban range 1.2.3.4 to 1.2.3.7 for 12h](#now-ban-range-1234-to-1237-for-12h)
+    - [Clear cache and get the new remediation](#clear-cache-and-get-the-new-remediation)
 - [Discover the CrowdSec LAPI](#discover-the-crowdsec-lapi)
   - [Use the CrowdSec cli (`cscli`)](#use-the-crowdsec-cli-cscli)
+    - [Add decision for an IP or a range of IPs](#add-decision-for-an-ip-or-a-range-of-ips)
+    - [Add decision to ban or captcha a country](#add-decision-to-ban-or-captcha-a-country)
+    - [Delete decisions](#delete-decisions)
+    - [Create a bouncer](#create-a-bouncer)
+    - [Create a watcher](#create-a-watcher)
   - [Use the web container to call LAPI](#use-the-web-container-to-call-lapi)
 - [Update documentation table of contents](#update-documentation-table-of-contents)
 - [Commit message](#commit-message)
@@ -179,7 +201,7 @@ Finally, run
 
 
 ```bash
-ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APP_SEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
+ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
 ```
 
 For geolocation Unit Test, you should first put 2 free MaxMind databases in the `tests` folder : `GeoLite2-City.mmdb`
@@ -189,7 +211,7 @@ and `GeoLite2-Country.mmdb`. You can download these databases by creating a MaxM
 Then, you can run:
 
 ```bash
-ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APP_SEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/GeolocationTest.php
+ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/GeolocationTest.php
 ```
 
 **N.B.**: If you want to test with `curl` instead of `file_get_contents` calls to LAPI, you have to add `USE_CURL=1` in 
@@ -199,7 +221,7 @@ the previous commands.
 and specify the path where you store certificates and keys. For example:
 
 ```bash
-ddev exec USE_CURL=1 AGENT_TLS_PATH=/var/www/html/cfssl  BOUNCER_TLS_PATH=/var/www/html/cfssl APP_SEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
+ddev exec USE_CURL=1 AGENT_TLS_PATH=/var/www/html/cfssl  BOUNCER_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
 ```
 
 
@@ -334,7 +356,7 @@ ddev xdebug
 
 To generate a html report, you can run:
 ```bash
-ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key  AGENT_TLS_PATH=/var/www/html/cfssl APP_SEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 REDIS_DSN=redis://redis:6379 MEMCACHED_DSN=memcached://memcached:11211  /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml
+ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key  AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 REDIS_DSN=redis://redis:6379 MEMCACHED_DSN=memcached://memcached:11211  /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml
 
 ```
 
@@ -584,7 +606,7 @@ npm install -g doctoc
 Then, run it in the documentation folder:
 
 ```bash
-doctoc docs/*
+doctoc docs/* --maxlevel 4
 ```
 
 

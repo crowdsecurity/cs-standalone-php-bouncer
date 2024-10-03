@@ -40,7 +40,6 @@ esac
 
 
 HOSTNAME=$(ddev exec printenv DDEV_HOSTNAME | sed 's/\r//g')
-PHPVERSION=$(ddev exec printenv DDEV_PROJECT | sed 's/\r//g')
 PHP_URL=https://$HOSTNAME
 PROXY_IP=$(ddev find-ip ddev-router)
 BOUNCER_KEY=$(ddev exec grep "'api_key'" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | tail -1 | sed 's/api_key//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
@@ -48,6 +47,7 @@ GEOLOC_ENABLED=$(ddev exec grep -E "'enabled'.*,$" /var/www/html/my-code/standal
 FORCED_TEST_FORWARDED_IP=$(ddev exec grep -E "'forced_test_forwarded_ip'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/forced_test_forwarded_ip//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 CLEAN_CACHE_DURATION=$(ddev exec grep -E "'clean_ip_cache_duration'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/clean_ip_cache_duration//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 STREAM_MODE=$(ddev exec grep -E "'stream_mode'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/stream_mode//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
+APPSEC_ENABLED=$(ddev exec grep -E "'use_appsec'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/use_appsec//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 DEBUG_MODE=$(ddev exec grep -E "'debug_mode'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/debug_mode//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 JEST_PARAMS="--bail=true  --runInBand --verbose"
 # If FAIL_FAST, will exit on first individual test fail
@@ -56,12 +56,16 @@ FAIL_FAST=true
 
 case $TYPE in
   "host")
-    CROWDSEC_URL_FROM_HOST="$(ddev describe | grep -A 1 "crowdsec " | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g |  sed -e 's|,.*||g' | tail -1)"
     cd "../"
     DEBUG_STRING="PWDEBUG=1"
     YARN_PATH="./"
     COMMAND="yarn --cwd ${YARN_PATH} cross-env"
-    LAPI_URL_FROM_PLAYWRIGHT=https://${CROWDSEC_URL_FROM_HOST}
+    # Following line is not working anymore
+    # CROWDSEC_URL_FROM_HOST="$(ddev describe | grep -A 1 "crowdsec " | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g |  sed -e 's|,.*||g' | tail -1)"
+    # To make it work on host:
+    # 1) update your/etc/hosts (ddev find-ip crowdsec) crowdsec
+    # Example: 172.19.0.19     crowdsec
+    LAPI_URL_FROM_PLAYWRIGHT=https://crowdsec:8080
     CURRENT_IP=$(ddev find-ip host)
     TIMEOUT=31000
     HEADLESS=false
@@ -110,6 +114,7 @@ $DEBUG_STRING \
 BOUNCER_KEY="$BOUNCER_KEY" \
 PROXY_IP="$PROXY_IP"  \
 GEOLOC_ENABLED="$GEOLOC_ENABLED" \
+APPSEC_ENABLED="$APPSEC_ENABLED" \
 STREAM_MODE="$STREAM_MODE" \
 CLEAN_CACHE_DURATION="$CLEAN_CACHE_DURATION" \
 DEBUG_MODE="$DEBUG_MODE" \

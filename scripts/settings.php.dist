@@ -45,11 +45,11 @@ return [
      */
     'use_curl' => false,
     /**
-     * By default, we use the LAPI to get the decision. Set 'use_app_sec' to true in order to also the AppSec endpoint,
+     * By default, we use the LAPI to get the decision. Set 'use_appsec' to true in order to also the AppSec endpoint,
      * in case of no decision from LAPI ("bypass" remediation).
-     * If true, the AppSec URL must be set in the 'app_sec_url' setting below.
+     * If true, the AppSec URL must be set in the 'appsec_url' setting below.
      */
-    'use_app_sec' => false,
+    'use_appsec' => false,
     /**
      * array of URIs that will not be bounced.
      */
@@ -182,7 +182,7 @@ return [
      */
     'api_url' => LapiConstants::DEFAULT_LAPI_URL,
      // Define the AppSec URL of your LAPI server, default to http://localhost:7422.
-    'app_sec_url' => LapiConstants::DEFAULT_APPSEC_URL,
+    'appsec_url' => LapiConstants::DEFAULT_APPSEC_URL,
 
     // In seconds. The timeout when calling LAPI. Must be greater or equal than 1. Defaults to 120 sec.
     'api_timeout' => Constants::API_TIMEOUT,
@@ -200,6 +200,13 @@ return [
      * Handle unknown remediations as.
      */
     'fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
+
+    /** Select from 'bypass' (minimum remediation), 'captcha' (recommended) or 'ban' (maximum remediation).
+     * Default to 'captcha'.
+     *
+     * Will be used as remediation in case of AppSec failure (timeout))
+     */
+    'appsec_fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
 
     /**
      * The `ordered_remediations` setting accepts an array of remediations ordered by priority.

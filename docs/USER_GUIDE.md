@@ -71,6 +71,9 @@ Here is the list of available settings that you could define in the `scripts/set
 
 - `fallback_remediation`: Select from `bypass` (minimum remediation), `captcha` or `ban` (maximum remediation). Default to 'captcha'. Handle unknown remediations as.
 
+- `appsec_fallback_remediation`: Select from `bypass` (minimum remediation), `captcha` (recommended) or `ban` (maximum remediation). 
+  Default to 'captcha'. Will be used as remediation in case of AppSec failure (timeout). 
+
 
 - `trust_ip_forward_array`:  If you use a CDN, a reverse proxy or a load balancer, set an array of IPs. For other IPs, the bouncer will not trust the X-Forwarded-For header.
 
@@ -80,7 +83,7 @@ Here is the list of available settings that you could define in the `scripts/set
 
 - `stream_mode`: true to enable stream mode, false to enable the live mode. Default to false. By default, the `live mode` is enabled. The first time a user connects to your website, this mode means that the IP will be checked directly by the CrowdSec API. The rest of your user’s browsing will be even more transparent thanks to the fully customizable cache system. But you can also activate the `stream mode`. This mode allows you to constantly feed the bouncer with the malicious IP list via a background task (CRON), making it to be even faster when checking the IP of your visitors. Besides, if your site has a lot of unique visitors at the same time, this will not influence the traffic to the API of your CrowdSec instance.
 
-- `use_app_sec`: true to enable AppSec remediation. Default to false. If you enable this setting, you need to define the `app_sec_url` setting below. If true, and if the initial Lapi remediation is a `bypass`, a remediation based on the current request will be retrieved from the AppSec endpoint and will be used as final remediation. This feature is only available if you use `api_key` as `auth_type`.
+- `use_appsec`: true to enable AppSec remediation. Default to false. If you enable this setting, you need to define the `appsec_url` setting below. If true, and if the initial Lapi remediation is a `bypass`, a remediation based on the current request will be retrieved from the AppSec endpoint and will be used as final remediation. This feature is only available if you use `api_key` as `auth_type`.
 
 ### Local API Connection
 
@@ -117,7 +120,7 @@ Here is the list of available settings that you could define in the `scripts/set
 
 - `api_url`: Define the URL to your Local API server, default to `http://localhost:8080`.
 
-- `app_sec_url`: Define the URL to your AppSec server, default to `http://localhost:7422`. Only needed if you use AppSec remediation (see `use_app_sec` setting above).
+- `appsec_url`: Define the URL to your AppSec server, default to `http://localhost:7422`. Only needed if you use AppSec remediation (see `use_appsec` setting above).
 
 - `api_timeout`: In seconds. The global timeout when calling Local API. Default to 120 sec. If set to a negative value
   or 0, timeout will be unlimited.

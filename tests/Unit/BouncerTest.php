@@ -115,8 +115,8 @@ final class BouncerTest extends TestCase
         'tls_ca_cert_path' => '',
         'api_key' => 'unit-test',
         'api_url' => LapiConstants::DEFAULT_LAPI_URL,
-        'app_sec_url' => LapiConstants::DEFAULT_APPSEC_URL,
-        'use_app_sec' => false,
+        'appsec_url' => LapiConstants::DEFAULT_APPSEC_URL,
+        'use_appsec' => false,
         'api_timeout' => 1,
         // ============================================================================#
         // Remediation engine configs
