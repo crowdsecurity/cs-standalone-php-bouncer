@@ -286,6 +286,25 @@ yarn --cwd ./tests/end-to-end --force
 yarn global add cross-env
 ```
 
+##### Testing timeout in the CrowdSec container
+
+If you need to test a timeout, you can use the following command:
+
+Install `iproute2`
+```bash
+ddev exec -s crowdsec apk add iproute2
+```
+Add the delay you want:
+```bash
+ddev exec -s crowdsec tc qdisc add dev eth0 root netem delay 500ms
+```
+
+To remove the delay:
+```bash
+ddev exec -s crowdsec tc qdisc del dev eth0 root netem
+```
+
+
 #### Coding standards
 
 We set up some coding standards tools that you will find in the `tools/coding-standards` folder. In order to use these, you will need to work with a PHP version >= 7.4 and run first:

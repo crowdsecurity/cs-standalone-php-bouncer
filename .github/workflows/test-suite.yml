@@ -91,7 +91,7 @@ jobs:
 
       - name: Run "Unit Tests"
         run: |
-          ddev exec /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Unit    
+          ddev exec /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors  ./${{env.EXTENSION_PATH}}/tests/Unit    
 
       - name: Prepare PHP Integration and end-to-end tests
         run: |
@@ -108,28 +108,32 @@ jobs:
 
       - name: Run "IP verification with file_get_contents" test
         run: |
-          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
 
       - name: Run "IP verification with cURL" test
         run: |
-          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
 
       - name: Run "IP verification with TLS" test
         run: |
-          ddev exec AGENT_TLS_PATH=/var/www/html/cfssl BOUNCER_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php    
+          ddev exec AGENT_TLS_PATH=/var/www/html/cfssl BOUNCER_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php    
 
       - name: Run "Geolocation with file_get_contents" test
         run: |
-          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php
 
       - name: Run "Geolocation with cURL" test
         run: |
-          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php    
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php    
 
       - name: Prepare Standalone Bouncer end-to-end tests
         run: |
+          # Enabel auto-prepend in Nginx
           cd ${{ github.workspace }}/.ddev
           ddev nginx-config okaeli-add-on/native/custom_files/crowdsec/crowdsec-prepend-nginx-site.conf
+          # Add iproute2 for timeout simulation
+          ddev exec -s crowdsec apk add iproute2
+          # Prepare settings
           cd ${{ github.workspace }}
           cp ${{env.EXTENSION_PATH}}/tests/end-to-end/settings/base.php.dist crowdsec-lib-settings.php
           sed -i -e 's#REPLACE_API_KEY#${{ env.BOUNCER_KEY }}#g' crowdsec-lib-settings.php
@@ -137,6 +141,7 @@ jobs:
           sed -i -e 's/REPLACE_FORCED_IP//g' crowdsec-lib-settings.php
           sed -i -e 's/REPLACE_FORCED_FORWARDED_IP//g' crowdsec-lib-settings.php
           mv crowdsec-lib-settings.php ${{env.EXTENSION_PATH}}/scripts/settings.php
+          # Prepare tests scripts
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/__scripts__
           chmod +x test-init.sh
           ./test-init.sh
@@ -454,4 +459,78 @@ jobs:
           else
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
+          fi
+
+      - name: Run "AppSec with Api Key auth and cURL and Redis" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Use Api key
+          sed -i  's/\x27auth_type\x27 => \x27tls\x27/\x27auth_type\x27 => \x27api_key\x27/g' scripts/settings.php
+          # Disable stream mode
+          sed -i  's/\x27stream_mode\x27 => true/\x27stream_mode\x27 => false/g' scripts/settings.php
+          # Use Redis
+          sed -i  's/\x27cache_system\x27 => Constants::CACHE_SYSTEM_MEMCACHED/\x27cache_system\x27 => Constants::CACHE_SYSTEM_REDIS/g' scripts/settings.php
+          # Enable AppSec
+          sed -i  's/\x27use_appsec\x27 => false/\x27use_appsec\x27 => true/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/7-appsec.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "AppSec with timeout (captcha fallback)" test
+        run: |
+          # Add delay
+          ddev exec -s crowdsec tc qdisc add dev eth0 root netem delay 500ms
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/8-appsec-timeout-captcha.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+      - name: Run "AppSec with timeout (ban fallback)" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Change AppSec fallback
+          sed -i  's/\x27appsec_fallback_remediationx27 => Constants::REMEDIATION_CAPTCHA/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BAN/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/9-appsec-timeout-ban.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
           fi    
+
+      - name: Run "AppSec with timeout (bypass fallback)" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Change AppSec fallback
+          sed -i  's/\x27appsec_fallback_remediationx27 => Constants::REMEDIATION_BAN/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BYPASS/g' scripts/settings.php
+          cat scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/10-appsec-timeout-bypass.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi

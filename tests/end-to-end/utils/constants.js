@@ -18,6 +18,7 @@ const WATCHER_LOGIN = "watcherLogin";
 const WATCHER_PASSWORD = "watcherPassword";
 const {
     BOUNCER_KEY,
+    APPSEC_FALLBACK,
     DEBUG,
     CURRENT_IP,
     LAPI_URL_FROM_PLAYWRIGHT,
@@ -36,6 +37,7 @@ module.exports = {
     APPSEC_TEST_URL,
     APPSEC_ENABLED,
     APPSEC_MALICIOUS_BODY,
+    APPSEC_FALLBACK,
     PHP_URL,
     BOUNCER_KEY,
     CLEAN_CACHE_DURATION,

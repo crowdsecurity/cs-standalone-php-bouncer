@@ -44,7 +44,7 @@ describe(`Should be ban by AppSec`, () => {
         }
     });
 
-    it("Should bypass for home page", async () => {
+    it("Should bypass for home page GET", async () => {
         await publicHomepageShouldBeAccessible();
     });
 
