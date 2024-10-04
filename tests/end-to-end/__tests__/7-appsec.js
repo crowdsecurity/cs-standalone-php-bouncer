@@ -64,6 +64,7 @@ describe(`Should be ban by AppSec`, () => {
 
         await fillInput("request-body", APPSEC_MALICIOUS_BODY);
         await clickById("appsec-post-button");
+        await wait(1000);
 
         appsecResult = await getTextById("appsec-result");
         await expect(appsecResult).toBe("Response status: 403");
@@ -79,6 +80,7 @@ describe(`Should be ban by AppSec`, () => {
 
         await fillInput("request-body", "OK");
         await clickById("appsec-post-button");
+        await wait(1000);
 
         appsecResult = await getTextById("appsec-result");
         await expect(appsecResult).toBe("Response status: 200");
