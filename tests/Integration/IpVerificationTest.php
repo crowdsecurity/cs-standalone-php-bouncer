@@ -700,7 +700,7 @@ final class IpVerificationTest extends TestCase
 
         $originCountItem = $cache->getItem(AbstractCache::ORIGINS_COUNT)->get();
         if ($this->useTls) {
-            $this->assertArrayHasNotKey('appsec', $originCountItem, 'The origin count for appsec should not be set');
+            $this->assertArrayNotHasKey('appsec', $originCountItem, 'The origin count for appsec should not be set');
         } else {
             $this->assertEquals(
                 1,
@@ -734,7 +734,7 @@ final class IpVerificationTest extends TestCase
 
         $originCountItem = $cache->getItem(AbstractCache::ORIGINS_COUNT)->get();
         if ($this->useTls) {
-            $this->assertArrayHasNotKey('clean_appsec', $originCountItem, 'The origin count for clean appsec should not be set');
+            $this->assertArrayNotHasKey('clean_appsec', $originCountItem, 'The origin count for clean appsec should not be set');
         } else {
             $this->assertEquals(
                 1,
