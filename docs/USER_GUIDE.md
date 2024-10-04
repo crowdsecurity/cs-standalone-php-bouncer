@@ -129,6 +129,10 @@ Here is the list of available settings that you could define in the `scripts/set
 - `api_connect_timeout`: In seconds. **Only for curl**. The timeout for the connection phase when calling Local 
   API. Default to 300 sec. If set to a 0, timeout will be unlimited.
 
+- `appsec_timeout_ms`: In milliseconds. The global timeout when calling AppSec. Default to 400 ms. If set to a negative value or 0, timeout will be unlimited.
+
+- `appsec_connect_timeout_ms`: In milliseconds. **Only for curl**. The timeout for the connection phase when calling AppSec. Default to 150 ms. If set to a 0, timeout will be unlimited.
+
 
 - `use_curl`: By default, this lib call the REST Local API using `file_get_contents` method (`allow_url_fopen` is required).
   You can set `use_curl` to `true` in order to use `cURL` request instead (`ext-curl` is in then required)

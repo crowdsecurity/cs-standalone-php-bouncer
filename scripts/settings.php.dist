@@ -184,17 +184,17 @@ return [
      // Define the AppSec URL of your LAPI server, default to http://localhost:7422.
     'appsec_url' => LapiConstants::DEFAULT_APPSEC_URL,
 
-    // In seconds. The timeout when calling LAPI. Must be greater or equal than 1. Defaults to 120 sec.
+    // In seconds. The timeout when calling LAPI. Defaults to 120 sec.
     'api_timeout' => Constants::API_TIMEOUT,
 
-    // In seconds. The connection timeout when calling LAPI. Must be greater or equal than 1. Defaults to 300 sec.
+    // In seconds. The connection timeout when calling LAPI. Defaults to 300 sec.
     'api_connect_timeout' => Constants::API_CONNECT_TIMEOUT,
 
-    // In milliseconds. The timeout when calling AppSec. Must be greater or equal than 1. Defaults to 400 ms.
+    // In milliseconds. The timeout when calling AppSec. Defaults to 400 ms.
     'appsec_timeout_ms' => Constants::APPSEC_TIMEOUT_MS,
 
-    // In milliseconds. The connection timeout when calling APPSEC. Must be greater or equal than 1. Defaults to 150 sec.
-    'appsec_connect_timeout' => Constants::APPSEC_CONNECT_TIMEOUT_MS,
+    // In milliseconds. The connection timeout when calling APPSEC. Defaults to 150 ms.
+    'appsec_connect_timeout_ms' => Constants::APPSEC_CONNECT_TIMEOUT_MS,
 
     // ============================================================================#
     // Remediation engine configs
