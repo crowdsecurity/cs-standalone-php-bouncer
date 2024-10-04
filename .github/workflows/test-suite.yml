@@ -464,6 +464,8 @@ jobs:
       - name: Run "AppSec with Api Key auth and cURL and Redis" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Increase cache duration for clean IP
+          sed -i  's/\x27clean_ip_cache_duration\x27 => 1/\x27clean_ip_cache_duration\x27 => 3/g' scripts/settings.php
           # Use Api key
           sed -i  's#\x27api_key\x27 => \x27\x27#\x27api_key\x27 => \x27${{env.BOUNCER_KEY}}\x27#g' scripts/settings.php
           sed -i  's/\x27auth_type\x27 => \x27tls\x27/\x27auth_type\x27 => \x27api_key\x27/g' scripts/settings.php

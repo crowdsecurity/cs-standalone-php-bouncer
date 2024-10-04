@@ -10,11 +10,12 @@ protected methods, properties and constants belonging to the `src` folder and of
 
 ---
 
-## [1.2.0](https://github.com/crowdsecurity/cs-standalone-php-bouncer/releases/tag/v1.2.0) - 2024-??-??
+## [1.2.0](https://github.com/crowdsecurity/cs-standalone-php-bouncer/releases/tag/v1.2.0) - 2024-10-04
 [_Compare with previous release_](https://github.com/crowdsecurity/cs-standalone-php-bouncer/compare/v1.1.0...v1.2.0)
 
 ### Added
 - Add AppSec support
+- Add `use_appsec`, `appsec_url`, `appsec_timeout_ms`, `appsec_connect_timeout_ms` and `appsec_fallback_remediation` settings
 
 ---
 
