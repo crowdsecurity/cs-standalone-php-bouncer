@@ -83,6 +83,9 @@ class Bouncer extends AbstractBouncer
         return $_SERVER['REMOTE_ADDR'] ?? '';
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ElseExpression)
+     */
     public function getRequestHeaders(): array
     {
         $allHeaders = [];
