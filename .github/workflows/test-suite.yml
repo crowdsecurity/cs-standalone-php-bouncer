@@ -492,6 +492,8 @@ jobs:
           # Add delay
           ddev exec -s crowdsec tc qdisc add dev eth0 root netem delay 500ms
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Remove display error
+          sed -i  's/\x27display_errors\x27 => true/\x27display_errors\x27 => false/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
           ./__scripts__/run-tests.sh ci "./__tests__/8-appsec-timeout-captcha.js"
