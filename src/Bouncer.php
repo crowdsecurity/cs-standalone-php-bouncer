@@ -87,16 +87,16 @@ class Bouncer extends AbstractBouncer
     {
         $allHeaders = [];
 
-        if (function_exists('getallheaders')){
+        if (function_exists('getallheaders')) {
             // @codeCoverageIgnoreStart
             $allHeaders = getallheaders();
-            // @codeCoverageIgnoreEnd
+        // @codeCoverageIgnoreEnd
         } else {
             foreach ($_SERVER as $name => $value) {
-                if (substr($name, 0, 5) == 'HTTP_') {
+                if ('HTTP_' == substr($name, 0, 5)) {
                     $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
                     $allHeaders[$name] = $value;
-                } else if ($name == 'CONTENT_TYPE') {
+                } elseif ('CONTENT_TYPE' == $name) {
                     $allHeaders['Content-Type'] = $value;
                 }
             }

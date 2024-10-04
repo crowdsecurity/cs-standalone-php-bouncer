@@ -16,10 +16,10 @@ namespace CrowdSecStandalone\Tests\Unit;
  */
 
 use CrowdSec\Common\Logger\FileLog;
+use CrowdSec\LapiClient\Constants as LapiConstants;
 use CrowdSecBouncer\BouncerException;
 use CrowdSecStandalone\Bouncer;
 use CrowdSecStandalone\Constants;
-use CrowdSec\LapiClient\Constants as LapiConstants;
 use CrowdSecStandalone\Tests\PHPUnitUtil;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;

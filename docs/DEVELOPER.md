@@ -385,8 +385,9 @@ You should find the main report file `dashboard.html` in `tools/coding-standards
 If you want to generate a text report in the same folder:
 
 ```bash
-ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key LAPI_URL=https://crowdsec:8080
-MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml --coverage-text=./my-code/standalone-bouncer/tools/coding-standards/phpunit/code-coverage/report.txt 
+ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl 
+LAPI_URL=https://crowdsec:8080 APPSEC_URL=http://crowdsec:7422 MEMCACHED_DSN=memcached://memcached:11211 
+REDIS_DSN=redis://redis:6379 /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml --coverage-text=./my-code/standalone-bouncer/tools/coding-standards/phpunit/code-coverage/report.txt 
 ```
 
 #### Generate CrowdSec tools and settings on start

@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace CrowdSecStandalone\Tests\Integration;
 
 use CrowdSec\Common\Logger\FileLog;
-use CrowdSec\LapiClient\Bouncer as BouncerClient;
 use CrowdSec\RemediationEngine\CacheStorage\AbstractCache;
 use CrowdSec\RemediationEngine\CacheStorage\CacheStorageException;
-use CrowdSec\RemediationEngine\CacheStorage\PhpFiles;
-use CrowdSec\RemediationEngine\LapiRemediation;
-use CrowdSecBouncer\AbstractBouncer;
 use CrowdSecBouncer\BouncerException;
 use CrowdSecBouncer\Constants;
 use CrowdSecStandalone\Bouncer;
@@ -30,13 +26,10 @@ use Psr\Log\LoggerInterface;
  * @covers \CrowdSecStandalone\Bouncer::getHttpMethod
  * @covers \CrowdSecStandalone\Bouncer::getPostedVariable
  * @covers \CrowdSecStandalone\Bouncer::getRequestUri
- *
  * @covers \CrowdSecStandalone\Bouncer::getRequestHeaders
  * @covers \CrowdSecStandalone\Bouncer::getRequestHost
  * @covers \CrowdSecStandalone\Bouncer::getRequestRawBody
  * @covers \CrowdSecStandalone\Bouncer::getRequestUserAgent
- *
- *
  */
 final class IpVerificationTest extends TestCase
 {
@@ -599,7 +592,7 @@ final class IpVerificationTest extends TestCase
      * @return void
      *
      * @throws BouncerException
-     * @throws \CrowdSec\RemediationEngine\CacheStorage\CacheStorageException
+     * @throws CacheStorageException
      * @throws \PHPUnit\Framework\ExpectationFailedException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
@@ -621,6 +614,7 @@ final class IpVerificationTest extends TestCase
         if ($this->useTls) {
             $this->addTlsConfig($bouncerConfigs, $this->useTls);
         }
+        unset($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_EXPOSE'], $_SERVER['HTTP_X_FORWARDED_FOR']);
 
         $bouncer = new StandaloneBouncerNoResponse($bouncerConfigs, $this->logger);
         $bouncer->clearCache();
@@ -661,7 +655,6 @@ final class IpVerificationTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/.env';
         $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
-        unset($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_EXPOSE']);
 
         $bouncer->bounceCurrentIp();
         $this->assertEquals(
@@ -694,7 +687,6 @@ final class IpVerificationTest extends TestCase
             $bouncer->getRequestRawBody(),
             'Request raw body should be ok'
         );
-
 
         $cache = $bouncer->getRemediationEngine()->getCacheStorage();
         $cacheKey = $cache->getCacheKey(Constants::SCOPE_IP, TestHelpers::BAD_IP);
@@ -747,7 +739,6 @@ final class IpVerificationTest extends TestCase
             'The origin count for clean should be 1'
         );
     }
-
 
     /**
      * @group captcha
