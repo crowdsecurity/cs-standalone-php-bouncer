@@ -465,6 +465,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Use Api key
+          sed -i  's#\x27api_key\x27 => \x27\x27#\x27api_key\x27 => \x27${{env.BOUNCER_KEY}}\x27#g' scripts/settings.php
           sed -i  's/\x27auth_type\x27 => \x27tls\x27/\x27auth_type\x27 => \x27api_key\x27/g' scripts/settings.php
           # Disable stream mode
           sed -i  's/\x27stream_mode\x27 => true/\x27stream_mode\x27 => false/g' scripts/settings.php
