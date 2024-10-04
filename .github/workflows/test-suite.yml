@@ -508,7 +508,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Change AppSec fallback
-          sed -i  's/\x27appsec_fallback_remediationx27 => Constants::REMEDIATION_CAPTCHA/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BAN/g' scripts/settings.php
+          sed -i  's/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_CAPTCHA/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BAN/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
           ./__scripts__/run-tests.sh ci "./__tests__/9-appsec-timeout-ban.js"
@@ -525,7 +525,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Change AppSec fallback
-          sed -i  's/\x27appsec_fallback_remediationx27 => Constants::REMEDIATION_BAN/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BYPASS/g' scripts/settings.php
+          sed -i  's/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BAN/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BYPASS/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
           ./__scripts__/run-tests.sh ci "./__tests__/10-appsec-timeout-bypass.js"
