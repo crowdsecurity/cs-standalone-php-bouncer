@@ -38,7 +38,7 @@ describe(`Live mode run`, () => {
             throw new Error(errorMessage);
         }
         if (CLEAN_CACHE_DURATION !== "3") {
-            const errorMessage = `clean_ip_cache_duration setting must be exactly 3 for this test`;
+            const errorMessage = `clean_ip_cache_duration setting must be exactly 3 for this test (current is ${CLEAN_CACHE_DURATION})`;
             console.error(errorMessage);
             throw new Error(errorMessage);
         }
@@ -63,8 +63,7 @@ describe(`Live mode run`, () => {
         logContent = await getFileContent(DEBUG_LOG_PATH);
         await expect(logContent).toMatch(
             new RegExp(
-                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${
-                    FORCED_TEST_FORWARDED_IP || CURRENT_IP
+                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${FORCED_TEST_FORWARDED_IP || CURRENT_IP
                 }","result":"miss"}`,
             ),
         );
@@ -75,8 +74,7 @@ describe(`Live mode run`, () => {
         logContent = await getFileContent(DEBUG_LOG_PATH);
         await expect(logContent).toMatch(
             new RegExp(
-                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${
-                    FORCED_TEST_FORWARDED_IP || CURRENT_IP
+                `{"type":"LAPI_REM_CACHED_DECISIONS","ip":"${FORCED_TEST_FORWARDED_IP || CURRENT_IP
                 }","result":"hit"}`,
             ),
         );

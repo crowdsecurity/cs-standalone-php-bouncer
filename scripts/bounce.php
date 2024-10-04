@@ -15,7 +15,7 @@ try {
         $bouncer = new Bouncer($settings);
         $bouncer->run();
     }
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $displayErrors = !empty($settings['display_errors']);
     if ($displayErrors) {
         throw new BouncerException($e->getMessage(), (int) $e->getCode(), $e);

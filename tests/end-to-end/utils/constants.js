@@ -1,10 +1,14 @@
 const PUBLIC_URL =
     "/my-code/standalone-bouncer/tests/scripts/public/protected-page.php";
+const APPSEC_TEST_URL =
+    "/my-code/standalone-bouncer/tests/scripts/public/testappsec.php";
+const APPSEC_MALICIOUS_BODY = "class.module.classLoader.resources.";
 const FORCED_TEST_FORWARDED_IP =
     process.env.FORCED_TEST_FORWARDED_IP !== ""
         ? process.env.FORCED_TEST_FORWARDED_IP
         : null;
 const GEOLOC_ENABLED = process.env.GEOLOC_ENABLED === "true";
+const APPSEC_ENABLED = process.env.APPSEC_ENABLED === "true";
 const STREAM_MODE = process.env.STREAM_MODE === "true";
 const DEBUG_MODE = process.env.DEBUG_MODE === "true";
 const GEOLOC_BAD_COUNTRY = "JP";
@@ -14,6 +18,7 @@ const WATCHER_LOGIN = "watcherLogin";
 const WATCHER_PASSWORD = "watcherPassword";
 const {
     BOUNCER_KEY,
+    APPSEC_FALLBACK,
     DEBUG,
     CURRENT_IP,
     LAPI_URL_FROM_PLAYWRIGHT,
@@ -29,6 +34,10 @@ const CA_CERT_PATH = `${AGENT_TLS_PATH}/ca-chain.pem`;
 const DEBUG_LOG_PATH = `${AGENT_TLS_PATH}/../my-code/standalone-bouncer/scripts/.logs/debug.log`;
 
 module.exports = {
+    APPSEC_TEST_URL,
+    APPSEC_ENABLED,
+    APPSEC_MALICIOUS_BODY,
+    APPSEC_FALLBACK,
     PHP_URL,
     BOUNCER_KEY,
     CLEAN_CACHE_DURATION,

@@ -134,6 +134,14 @@ const selectByName = async (selectName, valueToSelect) => {
     await page.selectOption(`[name=${selectName}]`, `${valueToSelect}`);
 };
 
+const clickById = async (id) => {
+    await page.click(`#${id}`);
+};
+
+const getTextById = async (id) => {
+    return page.locator(`#${id}`).innerText();
+};
+
 module.exports = {
     addDecision,
     wait,
@@ -154,4 +162,7 @@ module.exports = {
     fillByName,
     selectElement,
     selectByName,
+    clickById,
+    getTextById,
+    computeCurrentPageRemediation,
 };

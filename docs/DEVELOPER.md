@@ -21,12 +21,6 @@
     - [Auto-prepend mode (standalone mode)](#auto-prepend-mode-standalone-mode)
     - [End-to-end tests](#end-to-end-tests)
     - [Coding standards](#coding-standards)
-      - [PHPCS Fixer](#phpcs-fixer)
-      - [PHPSTAN](#phpstan)
-      - [PHP Mess Detector](#php-mess-detector)
-      - [PHPCS and PHPCBF](#phpcs-and-phpcbf)
-      - [PSALM](#psalm)
-      - [PHP Unit Code coverage](#php-unit-code-coverage)
     - [Generate CrowdSec tools and settings on start](#generate-crowdsec-tools-and-settings-on-start)
     - [Redis debug](#redis-debug)
     - [Memcached debug](#memcached-debug)
@@ -207,8 +201,7 @@ Finally, run
 
 
 ```bash
-ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 
-MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
+ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
 ```
 
 For geolocation Unit Test, you should first put 2 free MaxMind databases in the `tests` folder : `GeoLite2-City.mmdb`
@@ -218,18 +211,17 @@ and `GeoLite2-Country.mmdb`. You can download these databases by creating a MaxM
 Then, you can run:
 
 ```bash
-ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080  
-MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/GeolocationTest.php
+ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/GeolocationTest.php
 ```
 
 **N.B.**: If you want to test with `curl` instead of `file_get_contents` calls to LAPI, you have to add `USE_CURL=1` in 
 the previous commands.
 
-**N.B**.: If you want to test with `tls` authentification, you have to add `BOUNCER_TLS_PATH` environment variable 
+**N.B**.: If you want to test with `tls` authentication, you have to add `BOUNCER_TLS_PATH` environment variable 
 and specify the path where you store certificates and keys. For example:
 
 ```bash
-ddev exec USE_CURL=1 AGENT_TLS_PATH=/var/www/html/cfssl  BOUNCER_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
+ddev exec USE_CURL=1 AGENT_TLS_PATH=/var/www/html/cfssl  BOUNCER_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./my-code/standalone-bouncer/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./my-code/standalone-bouncer/tests/Integration/IpVerificationTest.php
 ```
 
 
@@ -293,6 +285,25 @@ If you want to test with the `host` parameter, you will have to install manually
 yarn --cwd ./tests/end-to-end --force
 yarn global add cross-env
 ```
+
+##### Testing timeout in the CrowdSec container
+
+If you need to test a timeout, you can use the following command:
+
+Install `iproute2`
+```bash
+ddev exec -s crowdsec apk add iproute2
+```
+Add the delay you want:
+```bash
+ddev exec -s crowdsec tc qdisc add dev eth0 root netem delay 500ms
+```
+
+To remove the delay:
+```bash
+ddev exec -s crowdsec tc qdisc del dev eth0 root netem
+```
+
 
 #### Coding standards
 
@@ -364,7 +375,7 @@ ddev xdebug
 
 To generate a html report, you can run:
 ```bash
-ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key  AGENT_TLS_PATH=/var/www/html/cfssl LAPI_URL=https://crowdsec:8080 REDIS_DSN=redis://redis:6379 MEMCACHED_DSN=memcached://memcached:11211  /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml
+ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key  AGENT_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 REDIS_DSN=redis://redis:6379 MEMCACHED_DSN=memcached://memcached:11211  /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml
 
 ```
 
@@ -374,8 +385,9 @@ You should find the main report file `dashboard.html` in `tools/coding-standards
 If you want to generate a text report in the same folder:
 
 ```bash
-ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key LAPI_URL=https://crowdsec:8080
-MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml --coverage-text=./my-code/standalone-bouncer/tools/coding-standards/phpunit/code-coverage/report.txt 
+ddev exec XDEBUG_MODE=coverage BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl 
+LAPI_URL=https://crowdsec:8080 APPSEC_URL=http://crowdsec:7422 MEMCACHED_DSN=memcached://memcached:11211 
+REDIS_DSN=redis://redis:6379 /usr/bin/php  ./my-code/standalone-bouncer/tools/coding-standards/vendor/bin/phpunit  --configuration ./my-code/standalone-bouncer/tools/coding-standards/phpunit/phpunit.xml --coverage-text=./my-code/standalone-bouncer/tools/coding-standards/phpunit/code-coverage/report.txt 
 ```
 
 #### Generate CrowdSec tools and settings on start
@@ -594,10 +606,10 @@ Then, you should use some `curl` calls to contact the LAPI.
 For example, you can get the list of decisions with commands like:
 
 ```bash
-curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions | jq
-curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions?ip=1.2.3.4 | jq
-curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions/stream?startup=true | jq
-curl -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions/stream | jq
+curl -k -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions | jq
+curl -k -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions?ip=1.2.3.4 | jq
+curl -k -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions/stream?startup=true | jq
+curl -k -H "X-Api-Key: <YOUR_BOUNCER_KEY>" https://crowdsec:8080/v1/decisions/stream | jq
 ```
 
 
@@ -614,7 +626,7 @@ npm install -g doctoc
 Then, run it in the documentation folder:
 
 ```bash
-doctoc docs/*
+doctoc docs/* --maxlevel 4
 ```
 
 

@@ -12,6 +12,7 @@
  */
 
 use CrowdSecStandalone\Constants;
+use CrowdSec\LapiClient\Constants as LapiConstants;
 
 return [
     // ============================================================================#
@@ -43,7 +44,12 @@ return [
      * Set 'use_curl' to true in order to use cURL request instead (curl is in then required).
      */
     'use_curl' => false,
-
+    /**
+     * By default, we use the LAPI to get the decision. Set 'use_appsec' to true in order to also the AppSec endpoint,
+     * in case of no decision from LAPI ("bypass" remediation).
+     * If true, the AppSec URL must be set in the 'appsec_url' setting below.
+     */
+    'use_appsec' => false,
     /**
      * array of URIs that will not be bounced.
      */
@@ -174,13 +180,21 @@ return [
      * If you have installed the CrowdSec agent on your server, it should be "http://localhost:8080" or
      * "https://localhost:8080"
      */
-    'api_url' => Constants::DEFAULT_LAPI_URL,
+    'api_url' => LapiConstants::DEFAULT_LAPI_URL,
+     // Define the AppSec URL of your LAPI server, default to http://localhost:7422.
+    'appsec_url' => LapiConstants::DEFAULT_APPSEC_URL,
 
     // In seconds. The timeout when calling LAPI. Must be greater or equal than 1. Defaults to 120 sec.
     'api_timeout' => Constants::API_TIMEOUT,
 
     // In seconds. The connection timeout when calling LAPI. Must be greater or equal than 1. Defaults to 300 sec.
     'api_connect_timeout' => Constants::API_CONNECT_TIMEOUT,
+
+    // In milliseconds. The timeout when calling AppSec. Must be greater or equal than 1. Defaults to 400 ms.
+    'appsec_timeout_ms' => Constants::APPSEC_TIMEOUT_MS,
+
+    // In milliseconds. The connection timeout when calling APPSEC. Must be greater or equal than 1. Defaults to 150 sec.
+    'appsec_connect_timeout' => Constants::APPSEC_CONNECT_TIMEOUT_MS,
 
     // ============================================================================#
     // Remediation engine configs
@@ -192,6 +206,13 @@ return [
      * Handle unknown remediations as.
      */
     'fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
+
+    /** Select from 'bypass' (minimum remediation), 'captcha' (recommended) or 'ban' (maximum remediation).
+     * Default to 'captcha'.
+     *
+     * Will be used as remediation in case of AppSec failure (timeout))
+     */
+    'appsec_fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
 
     /**
      * The `ordered_remediations` setting accepts an array of remediations ordered by priority.
