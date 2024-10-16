@@ -64,7 +64,7 @@ case $TYPE in
     # Following line is not working anymore
     # CROWDSEC_URL_FROM_HOST="$(ddev describe | grep -A 1 "crowdsec " | sed 's/Host: //g' |  sed -e 's|│||g' | sed s/'\s'//g |  sed -e 's|,.*||g' | tail -1)"
     # To make it work on host:
-    # 1) update your/etc/hosts (ddev find-ip crowdsec) crowdsec
+    # 1) update your /etc/hosts (ddev find-ip crowdsec) crowdsec
     # Example: 172.19.0.19     crowdsec
     LAPI_URL_FROM_PLAYWRIGHT=https://crowdsec:8080
     CURRENT_IP=$(ddev find-ip host)

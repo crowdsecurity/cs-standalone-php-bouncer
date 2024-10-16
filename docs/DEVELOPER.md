@@ -275,15 +275,34 @@ For example:
     ./run-tests.sh docker "./__tests__/1-live-mode.js" 
     ./run-tests.sh host
 
-Before testing with the `docker` or `ci` parameter, you have to install all the required dependencies in the playwright container with this command :
+##### Test in docker
+
+Before testing with the `docker` or `ci` parameter, you have to install all the required dependencies
+in the playwright container with this command :
 
     ./test-init.sh
 
+##### Test on host
+
+
 If you want to test with the `host` parameter, you will have to install manually all the required dependencies:
 
-```bash
-yarn --cwd ./tests/end-to-end --force
+```
+yarn --cwd ./tests/e2e-ddev --force
 yarn global add cross-env
+```
+
+You will also have to edit your `/etc/hosts` file to add the following line:
+
+```
+<crowdec-container-ip> crowdsec
+```
+where `<crowdec-container-ip>` is the IP of the `crowdsec` container. You can find it with the command `ddev find-ip crowdsec`.
+
+Example:
+
+```
+172.19.0.5     crowdsec
 ```
 
 ##### Testing timeout in the CrowdSec container

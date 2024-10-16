@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2','8.3']
+        php-version: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3']
 
     name: Test suite
     runs-on: ubuntu-20.04
@@ -461,7 +461,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run "AppSec with Api Key auth and cURL and Redis" test
+      - name: Run "AppSec with cURL" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Increase cache duration for clean IP
@@ -487,7 +487,24 @@ jobs:
             exit 1
           fi
 
-      - name: Run "AppSec with timeout (captcha fallback)" test
+      - name: Run "AppSec with file_get_contents" test
+        run: |
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Disable curl
+          sed -i  's/\x27use_curl\x27 => true/\x27use_curl\x27 => false/g' scripts/settings.php
+          cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
+          ./__scripts__/run-tests.sh ci "./__tests__/7-appsec.js"
+          PENDING_TESTS=$(grep -oP '"numPendingTests":\K(.*),"numRuntimeErrorTestSuites"' .test-results.json | sed  's/,"numRuntimeErrorTestSuites"//g')
+          if [[ $PENDING_TESTS == "0" ]]
+          then
+            echo "No pending tests: OK"
+          else
+            echo "There are pending tests: $PENDING_TESTS (KO)"
+            exit 1
+          fi
+
+
+      - name: Run "AppSec with timeout (captcha fallback) and file_get_contents" test
         run: |
           # Add delay
           ddev exec -s crowdsec tc qdisc add dev eth0 root netem delay 500ms
@@ -504,9 +521,11 @@ jobs:
             exit 1
           fi
 
-      - name: Run "AppSec with timeout (ban fallback)" test
+      - name: Run "AppSec with timeout (ban fallback) and cURL" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          # Use curl
+          sed -i  's/\x27use_curl\x27 => false/\x27use_curl\x27 => true/g' scripts/settings.php
           # Change AppSec fallback
           sed -i  's/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_CAPTCHA/\x27appsec_fallback_remediation\x27 => Constants::REMEDIATION_BAN/g' scripts/settings.php
           cat scripts/settings.php
@@ -521,7 +540,7 @@ jobs:
             exit 1
           fi    
 
-      - name: Run "AppSec with timeout (bypass fallback)" test
+      - name: Run "AppSec with timeout (bypass fallback) and cURL" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           # Change AppSec fallback
