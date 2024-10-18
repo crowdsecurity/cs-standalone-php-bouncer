@@ -42,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['image'])) {
 
 <form id="uploadForm" enctype="multipart/form-data" method="POST">
     <input type="file" id="imageInput" name="image" accept="image/*">
-    <input type="submit" value="Upload Image">
+    <input id="imageUpload" type="submit" value="Upload Image">
 </form>
 
-<div id="result"></div>
+<div id="appsec-result">INITIAL STATE</div>
 
 <script>
     document.getElementById('uploadForm').addEventListener('submit', function(e) {
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['image'])) {
                     var response = JSON.parse(xhr.responseText);
                     if (response.success) {
                         // Display the uploaded image in the div
-                        var resultDiv = document.getElementById('result');
+                        var resultDiv = document.getElementById('appsec-result');
                         resultDiv.innerHTML = `<img src="${response.filepath}" alt="Uploaded Image">`;
                     } else {
                         alert('Error: ' + response.message);
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['image'])) {
                     console.error(xhr.responseText);
                 }
             } else {
-                var resultDiv = document.getElementById('result');
+                var resultDiv = document.getElementById('appsec-result');
                 resultDiv.innerHTML = xhr.status;
             }
         };

@@ -4,3 +4,4 @@ node_modules
 *.lock
 *.log
 *.jpg
+!assets/*.jpg

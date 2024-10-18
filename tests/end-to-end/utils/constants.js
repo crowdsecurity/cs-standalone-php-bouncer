@@ -2,6 +2,8 @@ const PUBLIC_URL =
     "/my-code/standalone-bouncer/tests/scripts/public/protected-page.php";
 const APPSEC_TEST_URL =
     "/my-code/standalone-bouncer/tests/scripts/public/testappsec.php";
+const APPSEC_UPLOAD_TEST_URL =
+    "/my-code/standalone-bouncer/tests/scripts/public/testappsec-upload.php";
 const APPSEC_MALICIOUS_BODY = "class.module.classLoader.resources.";
 const FORCED_TEST_FORWARDED_IP =
     process.env.FORCED_TEST_FORWARDED_IP !== ""
@@ -37,6 +39,7 @@ const DEBUG_LOG_PATH = `${AGENT_TLS_PATH}/../my-code/standalone-bouncer/scripts/
 
 module.exports = {
     APPSEC_TEST_URL,
+    APPSEC_UPLOAD_TEST_URL,
     APPSEC_ENABLED,
     APPSEC_MALICIOUS_BODY,
     APPSEC_FALLBACK,
