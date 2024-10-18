@@ -93,7 +93,7 @@ class Bouncer extends AbstractBouncer
         if (function_exists('getallheaders')) {
             // @codeCoverageIgnoreStart
             $allHeaders = getallheaders();
-            // @codeCoverageIgnoreEnd
+        // @codeCoverageIgnoreEnd
         } else {
             foreach ($_SERVER as $name => $value) {
                 if ('HTTP_' == substr($name, 0, 5)) {
@@ -121,7 +121,7 @@ class Bouncer extends AbstractBouncer
         $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
         // Handle multipart/form-data (file uploads)
-        if (strpos($contentType, 'multipart/form-data') !== false) {
+        if (false !== strpos($contentType, 'multipart/form-data')) {
             return $this->getMultipartRawBody();
         }
 
@@ -153,12 +153,12 @@ class Bouncer extends AbstractBouncer
         $rawBody = '';
 
         // Extract boundary from Content-Type
-        $boundary = substr($_SERVER['CONTENT_TYPE'], strpos($_SERVER['CONTENT_TYPE'], "boundary=") + 9);
+        $boundary = substr($_SERVER['CONTENT_TYPE'], strpos($_SERVER['CONTENT_TYPE'], 'boundary=') + 9);
 
         // Rebuild multipart body using $_POST and $_FILES
         if (!empty($_POST)) {
             foreach ($_POST as $key => $value) {
-                $rawBody .= "--" . $boundary . "\r\n";
+                $rawBody .= '--' . $boundary . "\r\n";
                 $rawBody .= "Content-Disposition: form-data; name=\"{$key}\"\r\n\r\n";
                 $rawBody .= $value . "\r\n";
             }
@@ -166,8 +166,9 @@ class Bouncer extends AbstractBouncer
 
         if (!empty($_FILES)) {
             foreach ($_FILES as $fileKey => $fileArray) {
-                $rawBody .= "--" . $boundary . "\r\n";
-                $rawBody .= "Content-Disposition: form-data; name=\"{$fileKey}\"; filename=\"{$fileArray['name']}\"\r\n";
+                $rawBody .= '--' . $boundary . "\r\n";
+                $rawBody .=
+                    "Content-Disposition: form-data; name=\"{$fileKey}\"; filename=\"{$fileArray['name']}\"\r\n";
                 $rawBody .= "Content-Type: {$fileArray['type']}\r\n\r\n";
 
                 // Open the temporary file and read its content in chunks using fopen()
@@ -183,7 +184,7 @@ class Bouncer extends AbstractBouncer
         }
 
         // End boundary
-        $rawBody .= "--" . $boundary . "--\r\n";
+        $rawBody .= '--' . $boundary . "--\r\n";
 
         return $rawBody;
     }

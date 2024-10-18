@@ -30,6 +30,7 @@ use Psr\Log\LoggerInterface;
  * @covers \CrowdSecStandalone\Bouncer::getRequestHost
  * @covers \CrowdSecStandalone\Bouncer::getRequestRawBody
  * @covers \CrowdSecStandalone\Bouncer::getRequestUserAgent
+ * @uses \CrowdSecStandalone\Bouncer::getRawInput
  */
 final class IpVerificationTest extends TestCase
 {

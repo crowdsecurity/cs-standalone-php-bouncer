@@ -523,6 +523,7 @@ jobs:
       - name: Run "AppSec POST too big body" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
+          sed -i  's/\x27appsec_max_body_size_kb\x27 => 1024/\x27appsec_max_body_size_kb\x27 => 1/g' scripts/settings.php
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
           ./__scripts__/run-tests.sh ci "./__tests__/11-appsec-max-body-ban.js"
