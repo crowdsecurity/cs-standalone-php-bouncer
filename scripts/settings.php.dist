@@ -51,6 +51,23 @@ return [
      */
     'use_appsec' => false,
     /**
+     * Maximum size of request body (in kilobytes) which, if exceeded,
+     * will trigger the action defined by the "appsec_body_size_exceeded_action" setting below.
+     *
+     * This setting is not required. By default, the maximum body size is set to 1024KB (1MB).
+     */
+    'appsec_max_body_size_kb' => Constants::APPSEC_DEFAULT_MAX_BODY_SIZE,
+    /**
+     * Action to take when the request body size exceeds the maximum size defined by the "appsec_max_body_size_kb" setting above.
+     *
+     * Select from:
+     * - `headers_only` (recommended and default value): only the headers of the original request are forwarded to AppSec,
+     * not the body.
+     * - `allow` (not recommended): the request is considered as safe and a bypass remediation is returned, without calling AppSec.
+     * - `block`: the request is considered as malicious and a ban remediation is returned, without calling AppSec.
+     */
+    'appsec_body_size_exceeded_action' => Constants::APPSEC_ACTION_HEADERS_ONLY,
+    /**
      * array of URIs that will not be bounced.
      */
     'excluded_uris' => ['/favicon.ico'],

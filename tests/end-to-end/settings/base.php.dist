@@ -30,6 +30,8 @@ return [
     'excluded_uris' => ['/favicon.ico'],
     'fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
     'use_appsec' => false,
+    'appsec_max_body_size_kb' => 1024,
+    'appsec_body_size_exceeded_action' => 'headers_only',
     'appsec_fallback_remediation' => Constants::REMEDIATION_CAPTCHA,
     'trust_ip_forward_array' => ['REPLACE_PROXY_IP'],
     // Cache
