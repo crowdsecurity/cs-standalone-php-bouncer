@@ -142,6 +142,10 @@ const getTextById = async (id) => {
     return page.locator(`#${id}`).innerText();
 };
 
+const getHtmlById = async (id) => {
+    return page.locator(`#${id}`).innerHTML();
+};
+
 module.exports = {
     addDecision,
     wait,
@@ -165,4 +169,5 @@ module.exports = {
     clickById,
     getTextById,
     computeCurrentPageRemediation,
+    getHtmlById,
 };

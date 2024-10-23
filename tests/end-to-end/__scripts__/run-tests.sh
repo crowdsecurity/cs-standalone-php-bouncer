@@ -49,6 +49,8 @@ CLEAN_CACHE_DURATION=$(ddev exec grep -E "'clean_ip_cache_duration'.*,$" /var/ww
 STREAM_MODE=$(ddev exec grep -E "'stream_mode'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/stream_mode//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 APPSEC_ENABLED=$(ddev exec grep -E "'use_appsec'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/use_appsec//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 APPSEC_FALLBACK=$(ddev exec grep "'appsec_fallback_remediation'" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | tail -1 | sed 's/appsec_fallback_remediation//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
+APPSEC_ACTION=$(ddev exec grep "'appsec_body_size_exceeded_action'" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | tail -1 | sed 's/appsec_body_size_exceeded_action//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
+APPSEC_MAX_BODY_SIZE=$(ddev exec grep "'appsec_max_body_size_kb'" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | tail -1 | sed 's/appsec_max_body_size_kb//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 DEBUG_MODE=$(ddev exec grep -E "'debug_mode'.*,$" /var/www/html/my-code/standalone-bouncer/scripts/settings.php | sed 's/debug_mode//g' | sed -e 's|[=>,"'\'']||g'  | sed s/'\s'//g)
 JEST_PARAMS="--bail=true  --runInBand --verbose"
 # If FAIL_FAST, will exit on first individual test fail
@@ -117,6 +119,8 @@ PROXY_IP="$PROXY_IP"  \
 GEOLOC_ENABLED="$GEOLOC_ENABLED" \
 APPSEC_ENABLED="$APPSEC_ENABLED" \
 APPSEC_FALLBACK="$APPSEC_FALLBACK" \
+APPSEC_ACTION="$APPSEC_ACTION" \
+APPSEC_MAX_BODY_SIZE="$APPSEC_MAX_BODY_SIZE" \
 STREAM_MODE="$STREAM_MODE" \
 CLEAN_CACHE_DURATION="$CLEAN_CACHE_DURATION" \
 DEBUG_MODE="$DEBUG_MODE" \

@@ -14,3 +14,6 @@ scripts/settings.php
 
 # MaxMind databases
 *.mmdb
+
+# Uploads test
+tests/scripts/public/uploads/*

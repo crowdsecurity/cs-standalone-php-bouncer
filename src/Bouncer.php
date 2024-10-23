@@ -95,6 +95,13 @@ class Bouncer extends AbstractBouncer
             $allHeaders = getallheaders();
         // @codeCoverageIgnoreEnd
         } else {
+            $this->logger->warning(
+                'getallheaders() function is not available',
+                [
+                    'type' => 'GETALLHEADERS_NOT_AVAILABLE',
+                    'message' => 'Resulting headers may not be accurate',
+                ]
+            );
             foreach ($_SERVER as $name => $value) {
                 if ('HTTP_' == substr($name, 0, 5)) {
                     $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
@@ -104,8 +111,6 @@ class Bouncer extends AbstractBouncer
                 }
             }
         }
-        // Remove Content-Length header for AppSec
-        unset($allHeaders['Content-Length']);
 
         return $allHeaders;
     }
@@ -118,12 +123,9 @@ class Bouncer extends AbstractBouncer
         return $_SERVER['HTTP_HOST'] ?? '';
     }
 
-    /**
-     * Get current request raw body.
-     */
     public function getRequestRawBody(): string
     {
-        return file_get_contents('php://input');
+        return $this->buildRequestRawBody(fopen('php://input', 'rb'));
     }
 
     /**
