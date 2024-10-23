@@ -95,6 +95,13 @@ class Bouncer extends AbstractBouncer
             $allHeaders = getallheaders();
         // @codeCoverageIgnoreEnd
         } else {
+            $this->logger->warning(
+                'getallheaders() function is not available',
+                [
+                    'type' => 'GETALLHEADERS_NOT_AVAILABLE',
+                    'message' => 'Resulting headers may not be accurate',
+                ]
+            );
             foreach ($_SERVER as $name => $value) {
                 if ('HTTP_' == substr($name, 0, 5)) {
                     $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
@@ -118,75 +125,7 @@ class Bouncer extends AbstractBouncer
 
     public function getRequestRawBody(): string
     {
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-
-        // Handle multipart/form-data (file uploads)
-        if (false !== strpos($contentType, 'multipart/form-data')) {
-            return $this->getMultipartRawBody();
-        }
-
-        // For all other content types (including application/json, etc.)
-        return $this->getRawInput();
-    }
-
-    /**
-     * Reconstructs the raw input for non-multipart form data requests (GET, POST, PUT, PATCH, DELETE, etc.)
-     * without using file_get_contents().
-     */
-    private function getRawInput(): string
-    {
-        $input = '';
-        $inputStream = fopen('php://input', 'rb');
-
-        if ($inputStream) {
-            while (!feof($inputStream)) {
-                $input .= fread($inputStream, 8192); // Reading the body in chunks
-            }
-            fclose($inputStream);
-        }
-
-        return $input;
-    }
-
-    private function getMultipartRawBody(): string
-    {
-        $rawBody = '';
-
-        // Extract boundary from Content-Type
-        $boundary = substr($_SERVER['CONTENT_TYPE'], strpos($_SERVER['CONTENT_TYPE'], 'boundary=') + 9);
-
-        // Rebuild multipart body using $_POST and $_FILES
-        if (!empty($_POST)) {
-            foreach ($_POST as $key => $value) {
-                $rawBody .= '--' . $boundary . "\r\n";
-                $rawBody .= "Content-Disposition: form-data; name=\"{$key}\"\r\n\r\n";
-                $rawBody .= $value . "\r\n";
-            }
-        }
-
-        if (!empty($_FILES)) {
-            foreach ($_FILES as $fileKey => $fileArray) {
-                $rawBody .= '--' . $boundary . "\r\n";
-                $rawBody .=
-                    "Content-Disposition: form-data; name=\"{$fileKey}\"; filename=\"{$fileArray['name']}\"\r\n";
-                $rawBody .= "Content-Type: {$fileArray['type']}\r\n\r\n";
-
-                // Open the temporary file and read its content in chunks using fopen()
-                $fileStream = fopen($fileArray['tmp_name'], 'rb');
-                if ($fileStream) {
-                    while (!feof($fileStream)) {
-                        $rawBody .= fread($fileStream, 8192); // Reading the file in 8KB chunks
-                    }
-                    fclose($fileStream);
-                }
-                $rawBody .= "\r\n";
-            }
-        }
-
-        // End boundary
-        $rawBody .= '--' . $boundary . "--\r\n";
-
-        return $rawBody;
+        return $this->buildRequestRawBody(fopen('php://input', 'rb'));
     }
 
     /**
