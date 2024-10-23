@@ -3,10 +3,9 @@
 
 ## User Guide
 
-
+**Table of Contents**
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
 
 - [Description](#description)
 - [Features](#features)
@@ -71,8 +70,22 @@ Here is the list of available settings that you could define in the `scripts/set
 
 - `fallback_remediation`: Select from `bypass` (minimum remediation), `captcha` or `ban` (maximum remediation). Default to 'captcha'. Handle unknown remediations as.
 
+
 - `appsec_fallback_remediation`: Select from `bypass` (minimum remediation), `captcha` (recommended) or `ban` (maximum remediation). 
-  Default to 'captcha'. Will be used as remediation in case of AppSec failure (timeout). 
+  Default to 'captcha'. Will be used as remediation in case of AppSec failure (timeout).
+
+
+- `appsec_max_body_size_kb`: Maximum body size in KB to send to AppSec. Default to 1024 KB.
+  If exceeded, the action defined by the `appsec_body_size_exceeded_action` setting below will be applied.
+
+
+- `appsec_body_size_exceeded_action`: Action to take when the request body size exceeds the maximum size defined by the `appsec_max_body_size_kb` setting above.
+
+  Possible values are:
+
+  - `headers_only` (recommended and default value): only the headers of the original request are forwarded to AppSec, not the body.
+  - `allow` (not recommended): the request is considered as safe and a bypass remediation is returned, without calling AppSec.
+  - `block`: the request is considered as malicious and a ban remediation is returned, without calling AppSec.
 
 
 - `trust_ip_forward_array`:  If you use a CDN, a reverse proxy or a load balancer, set an array of IPs. For other IPs, the bouncer will not trust the X-Forwarded-For header.
