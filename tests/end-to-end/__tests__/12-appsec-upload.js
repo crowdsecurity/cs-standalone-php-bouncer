@@ -45,7 +45,7 @@ describe(`Should work with ban as max body`, () => {
             throw new Error(errorMessage);
         }
         if (APPSEC_MAX_BODY_SIZE > 1024) {
-            const errorMessage = `AppSec max size must greater than "1024" for this test (got ${APPSEC_MAX_BODY_SIZE})`;
+            const errorMessage = `AppSec max size must less than "1024" for this test (got ${APPSEC_MAX_BODY_SIZE})`;
             console.error(errorMessage);
             throw new Error(errorMessage);
         }
