@@ -15,6 +15,7 @@ protected methods, properties and constants belonging to the `src` folder and of
 
 ### Added
 - Add multipart request support for AppSec
+- Add `appsec_max_body_size_kb` and `appsec_body_size_exceeded_action` settings
 
 ---
 
