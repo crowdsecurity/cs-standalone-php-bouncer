@@ -291,19 +291,6 @@ yarn --cwd ./tests/e2e-ddev --force
 yarn global add cross-env
 ```
 
-You will also have to edit your `/etc/hosts` file to add the following line:
-
-```
-<crowdec-container-ip> crowdsec
-```
-where `<crowdec-container-ip>` is the IP of the `crowdsec` container. You can find it with the command `ddev find-ip crowdsec`.
-
-Example:
-
-```
-172.19.0.5     crowdsec
-```
-
 ##### Testing timeout in the CrowdSec container
 
 If you need to test a timeout, you can use the following command:
