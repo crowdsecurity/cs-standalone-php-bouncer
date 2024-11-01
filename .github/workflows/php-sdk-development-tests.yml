@@ -53,9 +53,13 @@ env:
   # Allow ddev get to use a GitHub token to prevent rate limiting by tests
   DDEV_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PHP_COMMON_REPO: crowdsecurity/php-common
+  PHP_COMMON_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.php_common_branch || inputs.php_common_branch }}
   LAPI_CLIENT_REPO: crowdsecurity/php-lapi-client
+  LAPI_CLIENT_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.lapi_client_branch || inputs.lapi_client_branch }}
   REMEDIATION_ENGINE_REPO: crowdsecurity/php-remediation-engine
+  REMEDIATION_ENGINE_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.remediation_engine_branch || inputs.remediation_engine_branch }}
   BOUNCER_LIB_REPO: crowdsecurity/php-cs-bouncer
+  BOUNCER_LIB_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.bouncer_lib_branch || inputs.bouncer_lib_branch }}
 
 jobs:
   test-suite:
@@ -73,10 +77,6 @@ jobs:
       JP_TEST_IP: "210.249.74.42"
       IPV6_TEST_IP: "2001:0db8:0000:85a3:0000:0000:ac1f:8001"
       IPV6_TEST_PROXY_IP: "2345:0425:2CA1:0000:0000:0567:5673:23b5"
-      PHP_COMMON_BRANCH: ${{ github.event.inputs.php_common_branch }}
-      LAPI_CLIENT_BRANCH: ${{ github.event.inputs.lapi_client_branch }}
-      REMEDIATION_ENGINE_BRANCH: ${{ github.event.inputs.remediation_engine_branch }}
-      BOUNCER_LIB_BRANCH: ${{ github.event.inputs.bouncer_lib_branch }}
 
     steps:
 
