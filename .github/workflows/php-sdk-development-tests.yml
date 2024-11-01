@@ -2,49 +2,49 @@ name: PHP SDK development tests
 on:
   workflow_dispatch:
     inputs:
-      php_common_json_data:
+      php_common_branch:
         type: string
-        description: The PHP common JSON data (branch, repository, major tag)
+        description: The PHP common branch to use
         required: true
-        default: '["main", "crowdsecurity/php-common", "2"]'
-      lapi_client_json_data:
+        default: "main"
+      lapi_client_branch:
         type: string
-        description: The LAPI client JSON data (branch, repository, major tag)
+        description: The LAPI client branch to use
         required: true
-        default: '["main", "crowdsecurity/php-lapi-client", "3"]'
-      remediation_engine_json_data:
+        default: "main"
+      remediation_engine_branch:
         type: string
-        description: The Remediation Engine JSON data (branch, repository, major tag)
+        description: The Remediation Engine branch to use
         required: true
-        default: '["main", "crowdsecurity/php-remediation-engine", "3"]'
-      bouncer_lib_json_data:
+        default: "main"
+      bouncer_lib_branch:
         type: string
-        description: The PHP bouncer library JSON data (branch, repository, major tag)
+        description: The PHP bouncer library branch to use
         required: true
-        default: '["main", "crowdsecurity/php-cs-bouncer", "3"]'
+        default: "main"
 
   workflow_call:
     inputs:
-      php_common_json_data:
+      php_common_branch:
         type: string
-        description: The PHP common JSON data (branch, repository, major tag)
+        description: The PHP common branch to use
         required: true
-        default: '["main", "crowdsecurity/php-common", "2"]'
-      lapi_client_json_data:
+        default: "main"
+      lapi_client_branch:
         type: string
-        description: The LAPI client JSON data (branch, repository, major tag)
+        description: The LAPI client branch to use
         required: true
-        default: '["main", "crowdsecurity/php-lapi-client", "3"]'
-      remediation_engine_json_data:
+        default: "main"
+      remediation_engine_branch:
         type: string
-        description: The Remediation Engine JSON data (branch, repository, major tag)
+        description: The Remediation Engine branch to use
         required: true
-        default: '["main", "crowdsecurity/php-remediation-engine", "3"]'
-      bouncer_lib_json_data:
+        default: "main"
+      bouncer_lib_branch:
         type: string
-        description: The PHP bouncer library JSON data (branch, repository, major tag)
+        description: The PHP bouncer library branch to use
         required: true
-        default: '["main", "crowdsecurity/php-cs-bouncer", "3"]'
+        default: "main"
 
 permissions:
   contents: read
@@ -52,6 +52,10 @@ permissions:
 env:
   # Allow ddev get to use a GitHub token to prevent rate limiting by tests
   DDEV_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PHP_COMMON_REPO: crowdsecurity/php-common
+  LAPI_CLIENT_REPO: crowdsecurity/php-lapi-client
+  REMEDIATION_ENGINE_REPO: crowdsecurity/php-remediation-engine
+  BOUNCER_LIB_REPO: crowdsecurity/php-cs-bouncer
 
 jobs:
   test-suite:
@@ -69,40 +73,33 @@ jobs:
       JP_TEST_IP: "210.249.74.42"
       IPV6_TEST_IP: "2001:0db8:0000:85a3:0000:0000:ac1f:8001"
       IPV6_TEST_PROXY_IP: "2345:0425:2CA1:0000:0000:0567:5673:23b5"
-      PHP_COMMON_JSON: ${{ github.event.inputs.php_common_json_data }}
-      LAPI_CLIENT_JSON: ${{ github.event.inputs.lapi_client_json_data }}
-      REMEDIATION_ENGINE_JSON: ${{ github.event.inputs.remediation_engine_json_data }}
-      BOUNCER_LIB_JSON: ${{ github.event.inputs.bouncer_lib_json_data }}
+      PHP_COMMON_BRANCH: ${{ github.event.inputs.php_common_branch }}
+      LAPI_CLIENT_BRANCH: ${{ github.event.inputs.lapi_client_branch }}
+      REMEDIATION_ENGINE_BRANCH: ${{ github.event.inputs.remediation_engine_branch }}
+      BOUNCER_LIB_BRANCH: ${{ github.event.inputs.bouncer_lib_branch }}
 
     steps:
 
       - name: Set PHP common variables
         id: set-common-data
         run: |
-          echo "php_common_branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT
-          echo "php_common_repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_OUTPUT
-          echo "php_common_major_tag=${{ fromJson(env.PHP_COMMON_JSON)[2] }}" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.PHP_COMMON_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
 
       - name: Set LAPI client variables
         id: set-lapi-client-data
         run: |
-          echo "lapi_client_branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
-          echo "lapi_client_repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
-          echo "lapi_client_major_tag=${{ fromJson(env.LAPI_CLIENT_JSON)[2] }}" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.LAPI_CLIENT_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
 
       - name: Set Remediation engine variables
         id: set-remediation-engine-data
         run: |
-          echo "remediation_engine_branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
-          echo "remediation_engine_repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_OUTPUT
-          echo "remediation_engine_major_tag=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[2] }}" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.REMEDIATION_ENGINE_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
 
       - name: Set Bouncer library variables
         id: set-bouncer-lib-data
         run: |
-          echo "bouncer_lib_branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
-          echo "bouncer_lib_repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_OUTPUT
-          echo "bouncer_lib_major_tag=${{ fromJson(env.BOUNCER_LIB_JSON)[2] }}" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.BOUNCER_LIB_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+
 
       - name: Install DDEV
         # @see https://ddev.readthedocs.io/en/stable/#installationupgrade-script-linux-and-macos-armarm64-and-amd64-architectures
@@ -154,29 +151,29 @@ jobs:
       - name: Clone PHP common files
         uses: actions/checkout@v4
         with:
-          repository: ${{ steps.set-common-data.outputs.php_common_repo }}
-          ref: ${{ steps.set-common-data.outputs.php_common_branch }}
+          repository: ${{ env.PHP_COMMON_REPO}}
+          ref: ${{ env.PHP_COMMON_BRANCH }}
           path: my-code/php-common
 
       - name: Clone PHP LAPI client
         uses: actions/checkout@v4
         with:
-          repository: ${{ steps.set-lapi-client-data.outputs.lapi_client_repo }}
-          ref: ${{ steps.set-lapi-client-data.outputs.lapi_client_branch }}
+          repository: ${{ env.LAPI_CLIENT_REPO }}
+          ref: ${{ env.LAPI_CLIENT_BRANCH }}
           path: my-code/php-lapi-client
 
       - name: Clone PHP remediation engine
         uses: actions/checkout@v4
         with:
-          repository: ${{ steps.set-remediation-engine-data.outputs.remediation_engine_repo }}
-          ref: ${{ steps.set-remediation-engine-data.outputs.remediation_engine_branch }}
+          repository: ${{ env.REMEDIATION_ENGINE_REPO}}
+          ref: ${{ env.REMEDIATION_ENGINE_BRANCH }}
           path: my-code/php-remediation-engine
 
       - name: Clone PHP bouncer lib
         uses: actions/checkout@v4
         with:
-          repository: ${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_repo }}
-          ref: ${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_branch }}
+          repository: ${{ env.BOUNCER_LIB_REPO}}
+          ref: ${{ env.BOUNCER_LIB_BRANCH }}
           path: my-code/php-bouncer-lib
 
       - name: Add local repositories to composer
@@ -188,10 +185,10 @@ jobs:
 
       - name: Modify dependencies to use development aliases
         run: |
-            composer require crowdsec/bouncer:"dev-${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_branch }} as ${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-            composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.php_common_branch }} as ${{ steps.set-common-data.outputs.php_common_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-            composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.lapi_client_branch }} as ${{ steps.set-lapi-client-data.outputs.lapi_client_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-            composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.remediation_engine_branch }} as ${{ steps.set-remediation-engine-data.outputs.remediation_engine_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/bouncer:"dev-${{ env.BOUNCER_LIB_BRANCH}} as ${{ steps.set-bouncer-lib-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/common:"dev-${{ env.PHP_COMMON_BRANCH}} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/lapi-client:"dev-${{ env.LAPI_CLIENT_BRANCH }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/remediation-engine:"dev-${{ env.REMEDIATION_ENGINE_BRANCH}} as ${{ steps.set-remediation-engine-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
           
             cat ./${{env.EXTENSION_PATH}}/composer.json
 
@@ -206,7 +203,7 @@ jobs:
         run: |
           
           PHP_COMMON_VERSION=$(ddev composer show crowdsec/common --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)") 
-          if [[ $PHP_COMMON_VERSION == "dev-${{ steps.set-common-data.outputs.php_common_branch }}" ]]
+          if [[ $PHP_COMMON_VERSION == "dev-${{ env.PHP_COMMON_BRANCH }}" ]]
           then
             echo "PHP_COMMON_VERSION COMPARISON OK"
           else
@@ -215,7 +212,7 @@ jobs:
             exit 1
           fi
           LAPI_CLIENT_VERSION=$(ddev composer show crowdsec/lapi-client --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
-          if [[ $LAPI_CLIENT_VERSION == "dev-${{ steps.set-lapi-client-data.outputs.lapi_client_branch }}" ]]
+          if [[ $LAPI_CLIENT_VERSION == "dev-${{ env.LAPI_CLIENT_BRANCH }}" ]]
           then
             echo "LAPI_CLIENT_VERSION COMPARISON OK"
           else
@@ -224,7 +221,7 @@ jobs:
             exit 1
           fi
           REMEDIATION_ENGINE_VERSION=$(ddev composer show crowdsec/remediation-engine --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
-          if [[ $REMEDIATION_ENGINE_VERSION == "dev-${{ steps.set-remediation-engine-data.outputs.remediation_engine_branch }}" ]]
+          if [[ $REMEDIATION_ENGINE_VERSION == "dev-${{ env.REMEDIATION_ENGINE_BRANCH}}" ]]
           then
             echo "REMEDIATION_ENGINE_VERSION COMPARISON OK"
           else
@@ -233,7 +230,7 @@ jobs:
             exit 1
           fi
           BOUNCER_LIB_VERSION=$(ddev composer show crowdsec/bouncer --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
-          if [[ $BOUNCER_LIB_VERSION == "dev-${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_branch }}" ]]
+          if [[ $BOUNCER_LIB_VERSION == "dev-${{ env.BOUNCER_LIB_BRANCH }}" ]]
           then
             echo "BOUNCER_LIB_VERSION COMPARISON OK"
           else
