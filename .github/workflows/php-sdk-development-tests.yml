@@ -77,30 +77,32 @@ jobs:
     steps:
 
       - name: Set PHP common variables
+        id: set-common-data
         run: |
-          echo "php_common_branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_ENV
-          echo "php_common_repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_ENV
-          echo "php_common_major_tag=${{ fromJson(env.PHP_COMMON_JSON)[2] }}" >> $GITHUB_ENV
+          echo "php_common_branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT
+          echo "php_common_repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_OUTPUT
+          echo "php_common_major_tag=${{ fromJson(env.PHP_COMMON_JSON)[2] }}" >> $GITHUB_OUTPUT
 
       - name: Set LAPI client variables
+        id: set-lapi-client-data
         run: |
-          echo "lapi_client_branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_ENV
-          echo "lapi_client_repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_ENV
-          echo "lapi_client_major_tag=${{ fromJson(env.LAPI_CLIENT_JSON)[2] }}" >> $GITHUB_ENV
+          echo "lapi_client_branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
+          echo "lapi_client_repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
+          echo "lapi_client_major_tag=${{ fromJson(env.LAPI_CLIENT_JSON)[2] }}" >> $GITHUB_OUTPUT
 
       - name: Set Remediation engine variables
+        id: set-remediation-engine-data
         run: |
-          echo "remediation_engine_branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_ENV
-          echo "remediation_engine_repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_ENV
-          echo "remediation_engine_major_tag=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[2] }}" >> $GITHUB_ENV
+          echo "remediation_engine_branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
+          echo "remediation_engine_repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_OUTPUT
+          echo "remediation_engine_major_tag=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[2] }}" >> $GITHUB_OUTPUT
 
       - name: Set Bouncer library variables
+        id: set-bouncer-lib-data
         run: |
-          echo "bouncer_lib_branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_ENV
-          echo "bouncer_lib_repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_ENV
-          echo "bouncer_lib_major_tag=${{ fromJson(env.BOUNCER_LIB_JSON)[2] }}" >> $GITHUB_ENV
-
-      
+          echo "bouncer_lib_branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
+          echo "bouncer_lib_repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_OUTPUT
+          echo "bouncer_lib_major_tag=${{ fromJson(env.BOUNCER_LIB_JSON)[2] }}" >> $GITHUB_OUTPUT
 
       - name: Install DDEV
         # @see https://ddev.readthedocs.io/en/stable/#installationupgrade-script-linux-and-macos-armarm64-and-amd64-architectures
@@ -152,29 +154,29 @@ jobs:
       - name: Clone PHP common files
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.php_common_repo }}
-          ref: ${{ env.php_common_branch }}
+          repository: ${{ steps.set-common-data.outputs.php_common_repo }}
+          ref: ${{ steps.set-common-data.outputs.php_common_branch }}
           path: my-code/php-common
 
       - name: Clone PHP LAPI client
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.lapi_client_repo }}
-          ref: ${{ env.lapi_client_branch }}
+          repository: ${{ steps.set-lapi-client-data.outputs.lapi_client_repo }}
+          ref: ${{ steps.set-lapi-client-data.outputs.lapi_client_branch }}
           path: my-code/php-lapi-client
 
       - name: Clone PHP remediation engine
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.remediation_engine_repo }}
-          ref: ${{ env.remediation_engine_branch }}
+          repository: ${{ steps.set-remediation-engine-data.outputs.remediation_engine_repo }}
+          ref: ${{ steps.set-remediation-engine-data.outputs.remediation_engine_branch }}
           path: my-code/php-remediation-engine
 
       - name: Clone PHP bouncer lib
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.bouncer_lib_repo }}
-          ref: ${{ env.bouncer_lib_branch }}
+          repository: ${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_repo }}
+          ref: ${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_branch }}
           path: my-code/php-bouncer-lib
 
       - name: Add local repositories to composer
@@ -184,16 +186,13 @@ jobs:
             ddev exec --raw composer config repositories.2 '{"type": "path", "url": "../php-remediation-engine", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
             ddev exec --raw composer config repositories.3 '{"type": "path", "url": "../php-bouncer-lib", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
 
-      - name: Modify dependencies
+      - name: Modify dependencies to use development aliases
         run: |
-            jq '.require |= {
-                "php": ">=7.2.5",
-                "crowdsec/bouncer": "dev-${{ env.bouncer_lib_branch }} as ${{ env.bouncer_lib_major_tag }}.999.0",
-                "crowdsec/remediation-engine": "dev-${{ env.remediation_engine_branch }} as ${{ env.remediation_engine_major_tag }}.999.0",
-                "crowdsec/common": "dev-${{ env.php_common_branch }} as ${{ env.php_common_major_tag }}.999.0",
-                "crowdsec/lapi-client": "dev-${{ env.lapi_client_branch }} as ${{ env.lapi_client_major_tag }}.999.0"
-            }' ./${{env.EXTENSION_PATH}}/composer.json > ./${{env.EXTENSION_PATH}}/composer.tmp.json
-            mv ./${{env.EXTENSION_PATH}}/composer.tmp.json ./${{env.EXTENSION_PATH}}/composer.json
+            composer require crowdsec/bouncer:"dev-${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_branch }} as ${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.php_common_branch }} as ${{ steps.set-common-data.outputs.php_common_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.lapi_client_branch }} as ${{ steps.set-lapi-client-data.outputs.lapi_client_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+            composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.remediation_engine_branch }} as ${{ steps.set-remediation-engine-data.outputs.remediation_engine_major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          
             cat ./${{env.EXTENSION_PATH}}/composer.json
 
       - name: Validate composer.json
@@ -202,6 +201,46 @@ jobs:
       - name: Install CrowdSec lib dependencies
         run: |
           ddev composer update --working-dir ./${{env.EXTENSION_PATH}}
+
+      - name: Check installed packages versions
+        run: |
+          
+          PHP_COMMON_VERSION=$(ddev composer show crowdsec/common --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)") 
+          if [[ $PHP_COMMON_VERSION == "dev-${{ steps.set-common-data.outputs.php_common_branch }}" ]]
+          then
+            echo "PHP_COMMON_VERSION COMPARISON OK"
+          else
+            echo "PHP_COMMON_VERSION COMPARISON KO"
+            echo $PHP_COMMON_VERSION
+            exit 1
+          fi
+          LAPI_CLIENT_VERSION=$(ddev composer show crowdsec/lapi-client --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
+          if [[ $LAPI_CLIENT_VERSION == "dev-${{ steps.set-lapi-client-data.outputs.lapi_client_branch }}" ]]
+          then
+            echo "LAPI_CLIENT_VERSION COMPARISON OK"
+          else
+            echo "LAPI_CLIENT_VERSION COMPARISON KO"
+            echo $LAPI_CLIENT_VERSION
+            exit 1
+          fi
+          REMEDIATION_ENGINE_VERSION=$(ddev composer show crowdsec/remediation-engine --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
+          if [[ $REMEDIATION_ENGINE_VERSION == "dev-${{ steps.set-remediation-engine-data.outputs.remediation_engine_branch }}" ]]
+          then
+            echo "REMEDIATION_ENGINE_VERSION COMPARISON OK"
+          else
+            echo "REMEDIATION_ENGINE_VERSION COMPARISON KO"
+            echo $REMEDIATION_ENGINE_VERSION
+            exit 1
+          fi
+          BOUNCER_LIB_VERSION=$(ddev composer show crowdsec/bouncer --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
+          if [[ $BOUNCER_LIB_VERSION == "dev-${{ steps.set-bouncer-lib-data.outputs.bouncer_lib_branch }}" ]]
+          then
+            echo "BOUNCER_LIB_VERSION COMPARISON OK"
+          else
+            echo "BOUNCER_LIB_VERSION COMPARISON KO"
+            echo $BOUNCER_LIB_VERSION
+            exit 1
+          fi
 
       - name: Run "Unit Tests"
         run: |
