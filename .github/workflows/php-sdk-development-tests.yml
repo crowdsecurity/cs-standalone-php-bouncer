@@ -25,6 +25,12 @@ on:
 
   workflow_call:
     inputs:
+      is_call:
+        type: boolean
+        description: "Flag to indicate if the workflow is called"
+        # @see https://github.com/actions/runner/discussions/1884
+        required: false
+        default: true
       php_common_branch:
         type: string
         description: The PHP common branch to use
@@ -52,6 +58,7 @@ permissions:
 env:
   # Allow ddev get to use a GitHub token to prevent rate limiting by tests
   DDEV_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  STANDALONE_BOUNCER_REPO: crowdsecurity/cs-standalone-php-bouncer
   PHP_COMMON_REPO: crowdsecurity/php-common
   PHP_COMMON_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.php_common_branch || inputs.php_common_branch }}
   LAPI_CLIENT_REPO: crowdsecurity/php-lapi-client
@@ -144,9 +151,18 @@ jobs:
           ddev php -r "echo phpversion('memcached');"
 
       - name: Clone standalone bouncer files
+        if: inputs.is_call != true
         uses: actions/checkout@v4
         with:
           path: ${{env.EXTENSION_PATH}}
+
+      - name: Clone Standalone bouncer files
+        if: inputs.is_call == true
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.STANDALONE_BOUNCER_REPO }}
+          path: ${{env.EXTENSION_PATH}}
+          ref: "main"
 
       - name: Clone PHP common files
         uses: actions/checkout@v4
