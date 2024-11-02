@@ -6,22 +6,22 @@ on:
         type: string
         description: The PHP common json data
         required: true
-        default: '["main"]'
+        default: '["main","crowdsecurity/php-common"]'
       lapi_client_json:
         type: string
         description: The LAPI client json to use
         required: true
-        default: '["main"]'
+        default: '["main","crowdsecurity/php-lapi-client"]'
       remediation_engine_json:
         type: string
         description: The Remediation Engine json to use
         required: true
-        default: '["main"]'
+        default: '["main", "crowdsecurity/php-remediation-engine"]'
       bouncer_lib_json:
         type: string
         description: The PHP bouncer library json to use
         required: true
-        default: '["main"]'
+        default: '["main", "crowdsecurity/php-cs-bouncer"]'
 
   workflow_call:
     inputs:
@@ -33,24 +33,24 @@ on:
         default: true
       php_common_json:
         type: string
-        description: The PHP common json to use
+        description: The PHP common json data
         required: true
-        default: '["main"]'
+        default: '["main","crowdsecurity/php-common"]'
       lapi_client_json:
         type: string
         description: The LAPI client json to use
         required: true
-        default: '["main"]'
+        default: '["main","crowdsecurity/php-lapi-client"]'
       remediation_engine_json:
         type: string
         description: The Remediation Engine json to use
         required: true
-        default: '["main"]'
+        default: '["main", "crowdsecurity/php-remediation-engine"]'
       bouncer_lib_json:
         type: string
         description: The PHP bouncer library json to use
         required: true
-        default: '["main"]'
+        default: '["main", "crowdsecurity/php-cs-bouncer"]'
 
 permissions:
   contents: read
@@ -59,13 +59,9 @@ env:
   # Allow ddev get to use a GitHub token to prevent rate limiting by tests
   DDEV_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   STANDALONE_BOUNCER_REPO: crowdsecurity/cs-standalone-php-bouncer
-  PHP_COMMON_REPO: crowdsecurity/php-common
   PHP_COMMON_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.php_common_json || inputs.php_common_json }}
-  LAPI_CLIENT_REPO: crowdsecurity/php-lapi-client
   LAPI_CLIENT_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.lapi_client_json || inputs.lapi_client_json }}
-  REMEDIATION_ENGINE_REPO: crowdsecurity/php-remediation-engine
   REMEDIATION_ENGINE_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.remediation_engine_json || inputs.remediation_engine_json }}
-  BOUNCER_LIB_REPO: crowdsecurity/php-cs-bouncer
   BOUNCER_LIB_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.bouncer_lib_json || inputs.bouncer_lib_json }}
 
 jobs:
@@ -90,25 +86,29 @@ jobs:
       - name: Set PHP common variables
         id: set-common-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.PHP_COMMON_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-common/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT
 
       - name: Set LAPI client variables
         id: set-lapi-client-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.LAPI_CLIENT_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-lapi-client/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
 
       - name: Set Remediation engine variables
         id: set-remediation-engine-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.REMEDIATION_ENGINE_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-remediation-engine/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
 
       - name: Set Bouncer library variables
         id: set-bouncer-lib-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{ env.BOUNCER_LIB_REPO }}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-cs-bouncer/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
 
       - name: Install DDEV
@@ -170,28 +170,28 @@ jobs:
       - name: Clone PHP common files
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.PHP_COMMON_REPO}}
+          repository: ${{ steps.set-common-data.outputs.repo}}
           ref: ${{ steps.set-common-data.outputs.branch  }}
           path: my-code/php-common
 
       - name: Clone PHP LAPI client
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.LAPI_CLIENT_REPO }}
+          repository: ${{ steps.set-lapi-client-data.outputs.repo }}
           ref: ${{ steps.set-lapi-client-data.outputs.branch }}
           path: my-code/php-lapi-client
 
       - name: Clone PHP remediation engine
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.REMEDIATION_ENGINE_REPO}}
+          repository: ${{ steps.set-remediation-engine-data.outputs.repo }}
           ref: ${{ steps.set-remediation-engine-data.outputs.branch }}
           path: my-code/php-remediation-engine
 
       - name: Clone PHP bouncer lib
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.BOUNCER_LIB_REPO}}
+          repository: ${{ steps.set-bouncer-lib-data.outputs.repo }}
           ref: ${{ steps.set-bouncer-lib-data.outputs.branch }}
           path: my-code/php-bouncer-lib
 
