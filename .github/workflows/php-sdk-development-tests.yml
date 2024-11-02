@@ -85,68 +85,48 @@ jobs:
     steps:
 
       - name: Set PHP common variables
-        if: inputs.is_call != true
         id: set-common-data
         run: |
           echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-common/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT
-
-      - name: Set PHP common variables
-        if: inputs.is_call == true
-        id: set-common-data
-        run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-common/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=crowdsecurity/php-common" >> $GITHUB_OUTPUT
-          echo "branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT    
-
+          if [ "${{ inputs.is_call }}" = "true" ]; then
+              echo "repo=crowdsecurity/php-common" >> $GITHUB_OUTPUT
+          else
+              echo "repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_OUTPUT
+          fi          
+          
       - name: Set LAPI client variables
-        if: inputs.is_call != true
         id: set-lapi-client-data
         run: |
           echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-lapi-client/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
-
-      - name: Set LAPI client variables
-        if: inputs.is_call == true
-        id: set-lapi-client-data
-        run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-lapi-client/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=crowdsecurity/php-lapi-client" >> $GITHUB_OUTPUT
-          echo "branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.is_call }}" = "true" ]; then
+              echo "repo=crowdsecurity/php-lapi-client" >> $GITHUB_OUTPUT
+          else
+              echo "repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set Remediation engine variables
-        if: inputs.is_call != true
         id: set-remediation-engine-data
         run: |
           echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-remediation-engine/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
-
-      - name: Set Remediation engine variables
-        if: inputs.is_call == true
-        id: set-remediation-engine-data
-        run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-remediation-engine/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=crowdsecurity/php-remediation-engine" >> $GITHUB_OUTPUT
-          echo "branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.is_call }}" = "true" ]; then
+              echo "repo=crowdsecurity/php-remediation-engine" >> $GITHUB_OUTPUT
+          else
+              echo "repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set Bouncer library variables
-        if: inputs.is_call != true
         id: set-bouncer-lib-data
         run: |
           echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-cs-bouncer/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
-
-      - name: Set Bouncer library variables
-        if: inputs.is_call == true
-        id: set-bouncer-lib-data
-        run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-cs-bouncer/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
-          echo "repo=crowdsecurity/php-cs-bouncer" >> $GITHUB_OUTPUT
-          echo "branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.is_call }}" = "true" ]; then
+              echo "repo=crowdsecurity/php-cs-bouncer" >> $GITHUB_OUTPUT
+          else
+              echo "repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Install DDEV
         # @see https://ddev.readthedocs.io/en/stable/#installationupgrade-script-linux-and-macos-armarm64-and-amd64-architectures
