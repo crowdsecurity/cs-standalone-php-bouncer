@@ -12,6 +12,11 @@ on:
         description: The LAPI client json to use
         required: true
         default: '["main","crowdsecurity/php-lapi-client"]'
+      capi_client_json:
+        type: string
+        description: The CAPI client json to use
+        required: true
+        default: '["main","crowdsecurity/php-capi-client"]'
       remediation_engine_json:
         type: string
         description: The Remediation Engine json to use
@@ -42,6 +47,11 @@ on:
         description: The LAPI client json to use
         required: true
         default: '["main"]'
+      capi_client_json:
+        type: string
+        description: The CAPI client json to use
+        required: true
+        default: '["main"]'
       remediation_engine_json:
         type: string
         description: The Remediation Engine json to use
@@ -60,59 +70,79 @@ env:
   # Allow ddev get to use a GitHub token to prevent rate limiting by tests
   DDEV_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   STANDALONE_BOUNCER_REPO: crowdsecurity/cs-standalone-php-bouncer
+  BOUNCER_LIB_REPO: crowdsecurity/php-cs-bouncer
+  REMEDIATION_ENGINE_REPO: crowdsecurity/php-remediation-engine
+  CAPI_CLIENT_REPO: crowdsecurity/php-capi-client
+  LAPI_CLIENT_REPO: crowdsecurity/php-lapi-client
+  PHP_COMMON_REPO: crowdsecurity/php-common
   PHP_COMMON_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.php_common_json || inputs.php_common_json }}
   LAPI_CLIENT_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.lapi_client_json || inputs.lapi_client_json }}
   REMEDIATION_ENGINE_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.remediation_engine_json || inputs.remediation_engine_json }}
   BOUNCER_LIB_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.bouncer_lib_json || inputs.bouncer_lib_json }}
+  CAPI_CLIENT_JSON: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.capi_client_json || inputs.capi_client_json }}
 
 jobs:
   test-suite:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3']
+        php-version: ["7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3"]
 
     name: Test suite
     runs-on: ubuntu-20.04
     if: ${{ !contains(github.event.head_commit.message, 'chore(') }}
     env:
       EXTENSION_PATH: "my-code/standalone-bouncer"
+      BOUNCER_LIB_PATH: "my-code/php-bouncer-lib"
+      REMEDIATION_ENGINE_PATH: "my-code/php-remediation-engine"
+      CAPI_CLIENT_PATH: "my-code/php-capi-client"
+      LAPI_CLIENT_PATH: "my-code/php-lapi-client"
+      PHP_COMMON_PATH: "my-code/php-common"
       DDEV_PROJECT: "crowdsec-standalone-bouncer"
       JP_TEST_IP: "210.249.74.42"
       IPV6_TEST_IP: "2001:0db8:0000:85a3:0000:0000:ac1f:8001"
       IPV6_TEST_PROXY_IP: "2345:0425:2CA1:0000:0000:0567:5673:23b5"
 
     steps:
-
       - name: Set PHP common variables
         id: set-common-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-common/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.PHP_COMMON_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
-              echo "repo=crowdsecurity/php-common" >> $GITHUB_OUTPUT
+              echo "repo=${{env.PHP_COMMON_REPO}}" >> $GITHUB_OUTPUT
           else
               echo "repo=${{ fromJson(env.PHP_COMMON_JSON)[1] }}" >> $GITHUB_OUTPUT
-          fi          
-          
+          fi
+
       - name: Set LAPI client variables
         id: set-lapi-client-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-lapi-client/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.LAPI_CLIENT_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
-              echo "repo=crowdsecurity/php-lapi-client" >> $GITHUB_OUTPUT
+              echo "repo=${{env.LAPI_CLIENT_REPO}}" >> $GITHUB_OUTPUT
           else
               echo "repo=${{ fromJson(env.LAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Set CAPI client variables
+        id: set-capi-client-data
+        run: |
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.CAPI_CLIENT_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "branch=${{ fromJson(env.CAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.is_call }}" = "true" ]; then
+              echo "repo=${{env.CAPI_CLIENT_REPO}}" >> $GITHUB_OUTPUT
+          else
+              echo "repo=${{ fromJson(env.CAPI_CLIENT_JSON)[1] }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Set Remediation engine variables
         id: set-remediation-engine-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-remediation-engine/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.REMEDIATION_ENGINE_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
-              echo "repo=crowdsecurity/php-remediation-engine" >> $GITHUB_OUTPUT
+              echo "repo=${{env.REMEDIATION_ENGINE_REPO}}" >> $GITHUB_OUTPUT
           else
               echo "repo=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[1] }}" >> $GITHUB_OUTPUT
           fi
@@ -120,10 +150,10 @@ jobs:
       - name: Set Bouncer library variables
         id: set-bouncer-lib-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/crowdsecurity/php-cs-bouncer/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
+          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.BOUNCER_LIB_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
-              echo "repo=crowdsecurity/php-cs-bouncer" >> $GITHUB_OUTPUT
+              echo "repo=${{env.BOUNCER_LIB_REPO}}" >> $GITHUB_OUTPUT
           else
               echo "repo=${{ fromJson(env.BOUNCER_LIB_JSON)[1] }}" >> $GITHUB_OUTPUT
           fi
@@ -148,7 +178,7 @@ jobs:
           # override redis.conf
           ddev add-on  get julienloizelet/ddev-tools
           ddev add-on  get julienloizelet/ddev-crowdsec-php
-          ddev add-on  get julienloizelet/ddev-playwright 
+          ddev add-on  get julienloizelet/ddev-playwright
 
       - name: Start DDEV
         uses: nick-fields/retry@v3
@@ -189,47 +219,97 @@ jobs:
         with:
           repository: ${{ steps.set-common-data.outputs.repo}}
           ref: ${{ steps.set-common-data.outputs.branch  }}
-          path: my-code/php-common
+          path: ${{env.PHP_COMMON_PATH}}
 
       - name: Clone PHP LAPI client
         uses: actions/checkout@v4
         with:
           repository: ${{ steps.set-lapi-client-data.outputs.repo }}
           ref: ${{ steps.set-lapi-client-data.outputs.branch }}
-          path: my-code/php-lapi-client
+          path: ${{env.LAPI_CLIENT_PATH}}
+
+      - name: Clone PHP CAPI client
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.set-capi-client-data.outputs.repo }}
+          ref: ${{ steps.set-capi-client-data.outputs.branch }}
+          path: ${{env.CAPI_CLIENT_PATH}}
 
       - name: Clone PHP remediation engine
         uses: actions/checkout@v4
         with:
           repository: ${{ steps.set-remediation-engine-data.outputs.repo }}
           ref: ${{ steps.set-remediation-engine-data.outputs.branch }}
-          path: my-code/php-remediation-engine
+          path: ${{env.REMEDIATION_ENGINE_PATH}}
 
       - name: Clone PHP bouncer lib
         uses: actions/checkout@v4
         with:
           repository: ${{ steps.set-bouncer-lib-data.outputs.repo }}
           ref: ${{ steps.set-bouncer-lib-data.outputs.branch }}
-          path: my-code/php-bouncer-lib
+          path: ${{env.BOUNCER_LIB_PATH}}
 
       - name: Add local repositories to composer
         run: |
-            ddev exec --raw composer config repositories.0 '{"type": "path", "url": "../php-common", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
-            ddev exec --raw composer config repositories.1 '{"type": "path", "url": "../php-lapi-client", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
-            ddev exec --raw composer config repositories.2 '{"type": "path", "url": "../php-remediation-engine", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
-            ddev exec --raw composer config repositories.3 '{"type": "path", "url": "../php-bouncer-lib", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
+          # Standalone bouncer
+          ddev exec --raw composer config repositories.0 '{"type": "path", "url": "../php-common", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
+          ddev exec --raw composer config repositories.1 '{"type": "path", "url": "../php-lapi-client", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
+          ddev exec --raw composer config repositories.2 '{"type": "path", "url": "../php-remediation-engine", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
+          ddev exec --raw composer config repositories.3 '{"type": "path", "url": "../php-bouncer-lib", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
+          ddev exec --raw composer config repositories.4 '{"type": "path", "url": "../php-capi-client", "options": {"symlink": true}}' --working-dir ./${{ env.EXTENSION_PATH }}
+          # Bouncer lib
+          ddev exec --raw composer config repositories.0 '{"type": "path", "url": "../php-common", "options": {"symlink": true}}' --working-dir ./${{ env.BOUNCER_LIB_PATH }}
+          ddev exec --raw composer config repositories.1 '{"type": "path", "url": "../php-lapi-client", "options": {"symlink": true}}' --working-dir ./${{ env.BOUNCER_LIB_PATH }}
+          ddev exec --raw composer config repositories.2 '{"type": "path", "url": "../php-remediation-engine", "options": {"symlink": true}}' --working-dir ./${{ env.BOUNCER_LIB_PATH }}
+          ddev exec --raw composer config repositories.3 '{"type": "path", "url": "../php-capi-client", "options": {"symlink": true}}' --working-dir ./${{ env.BOUNCER_LIB_PATH }}
+          # Remediation engine
+          ddev exec --raw composer config repositories.0 '{"type": "path", "url": "../php-common", "options": {"symlink": true}}' --working-dir ./${{ env.REMEDIATION_ENGINE_PATH }}
+          ddev exec --raw composer config repositories.1 '{"type": "path", "url": "../php-lapi-client", "options": {"symlink": true}}' --working-dir ./${{ env.REMEDIATION_ENGINE_PATH }}
+          ddev exec --raw composer config repositories.2 '{"type": "path", "url": "../php-capi-client", "options": {"symlink": true}}' --working-dir ./${{ env.REMEDIATION_ENGINE_PATH }}
+          # CAPI client
+          ddev exec --raw composer config repositories.0 '{"type": "path", "url": "../php-common", "options": {"symlink": true}}' --working-dir ./${{ env.CAPI_CLIENT_PATH }}
+          # LAPI client
+          ddev exec --raw composer config repositories.0 '{"type": "path", "url": "../php-common", "options": {"symlink": true}}' --working-dir ./${{ env.LAPI_CLIENT_PATH }}
 
       - name: Modify dependencies to use development aliases
         run: |
-            composer require crowdsec/bouncer:"dev-${{ steps.set-bouncer-lib-data.outputs.branch }} as ${{ steps.set-bouncer-lib-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-            composer require crowdsec/common:"dev-${{  steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-            composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-            composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as ${{ steps.set-remediation-engine-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-          
-            cat ./${{env.EXTENSION_PATH}}/composer.json
+          # Standalone bouncer
+          composer require crowdsec/bouncer:"dev-${{ steps.set-bouncer-lib-data.outputs.branch }} as ${{ steps.set-bouncer-lib-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/common:"dev-${{  steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as ${{ steps.set-remediation-engine-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as ${{ steps.set-capi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          # Bouncer lib
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as ${{ steps.set-remediation-engine-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as ${{ steps.set-capi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          # Remediation engine
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as ${{ steps.set-capi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          # CAPI client
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.CAPI_CLIENT_PATH}}
+          # LAPI client
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.LAPI_CLIENT_PATH}}
 
       - name: Validate composer.json
-        run: ddev composer validate --strict --working-dir ./${{env.EXTENSION_PATH}}
+        run: |
+          # Standalone bouncer
+          cat ./${{env.EXTENSION_PATH}}/composer.json
+          ddev composer validate --strict --working-dir ./${{env.EXTENSION_PATH}}
+          # Bouncer lib
+          cat ./${{env.BOUNCER_LIB_PATH}}/composer.json
+          ddev composer validate --strict --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          # Remediation engine
+          cat ./${{env.REMEDIATION_ENGINE_PATH}}/composer.json
+          ddev composer validate --strict --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          # CAPI client
+          cat ./${{env.CAPI_CLIENT_PATH}}/composer.json
+          ddev composer validate --strict --working-dir ./${{env.CAPI_CLIENT_PATH}}
+          # LAPI client
+          cat ./${{env.LAPI_CLIENT_PATH}}/composer.json
+          ddev composer validate --strict --working-dir ./${{env.LAPI_CLIENT_PATH}}
 
       - name: Install CrowdSec lib dependencies
         run: |
@@ -237,7 +317,7 @@ jobs:
 
       - name: Check installed packages versions
         run: |
-          
+
           PHP_COMMON_VERSION=$(ddev composer show crowdsec/common --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)") 
           if [[ $PHP_COMMON_VERSION == "dev-${{ steps.set-common-data.outputs.branch  }}" ]]
           then
@@ -277,7 +357,7 @@ jobs:
 
       - name: Run "Unit Tests"
         run: |
-          ddev exec /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors  ./${{env.EXTENSION_PATH}}/tests/Unit    
+          ddev exec /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors  ./${{env.EXTENSION_PATH}}/tests/Unit
 
       - name: Prepare PHP Integration and end-to-end tests
         run: |
@@ -302,7 +382,7 @@ jobs:
 
       - name: Run "IP verification with TLS" test
         run: |
-          ddev exec AGENT_TLS_PATH=/var/www/html/cfssl BOUNCER_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php    
+          ddev exec AGENT_TLS_PATH=/var/www/html/cfssl BOUNCER_TLS_PATH=/var/www/html/cfssl APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080 MEMCACHED_DSN=memcached://memcached:11211 REDIS_DSN=redis://redis:6379 /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/IpVerificationTest.php
 
       - name: Run "Geolocation with file_get_contents" test
         run: |
@@ -310,7 +390,7 @@ jobs:
 
       - name: Run "Geolocation with cURL" test
         run: |
-          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php    
+          ddev exec BOUNCER_KEY=${{ env.BOUNCER_KEY }} AGENT_TLS_PATH=/var/www/html/cfssl USE_CURL=1 APPSEC_URL=http://crowdsec:7422 LAPI_URL=https://crowdsec:8080  /usr/bin/php ./${{env.EXTENSION_PATH}}/vendor/bin/phpunit --testdox --colors --exclude-group ignore ./${{env.EXTENSION_PATH}}/tests/Integration/GeolocationTest.php
 
       - name: Prepare Standalone Bouncer end-to-end tests
         run: |
@@ -347,7 +427,7 @@ jobs:
               echo $PREPENDVERIF
               exit 1
           fi
-            
+
       - name: Run "live mode with file_get_contents and without geolocation" test
         run: |
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
@@ -436,7 +516,7 @@ jobs:
           else
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
-          fi      
+          fi
 
       - name: Run "live mode with cURL and without geolocation" test
         run: |
@@ -588,7 +668,7 @@ jobs:
           else
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
-          fi          
+          fi
 
       - name: Run "stream mode with TLS auth and cURL" test
         run: |
@@ -609,7 +689,6 @@ jobs:
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
           fi
-          
 
       - name: Run "stream mode with TLS auth and cURL and Redis" test
         run: |
@@ -720,7 +799,7 @@ jobs:
           else
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
-          fi    
+          fi
 
       - name: Run "AppSec with timeout (captcha fallback) and file_get_contents" test
         run: |
@@ -756,7 +835,7 @@ jobs:
           else
             echo "There are pending tests: $PENDING_TESTS (KO)"
             exit 1
-          fi    
+          fi
 
       - name: Run "AppSec with timeout (bypass fallback) and cURL" test
         run: |
