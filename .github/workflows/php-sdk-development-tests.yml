@@ -107,7 +107,6 @@ jobs:
       - name: Set PHP common variables
         id: set-common-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.PHP_COMMON_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.PHP_COMMON_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
               echo "repo=${{env.PHP_COMMON_REPO}}" >> $GITHUB_OUTPUT
@@ -118,7 +117,6 @@ jobs:
       - name: Set LAPI client variables
         id: set-lapi-client-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.LAPI_CLIENT_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.LAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
               echo "repo=${{env.LAPI_CLIENT_REPO}}" >> $GITHUB_OUTPUT
@@ -128,7 +126,6 @@ jobs:
       - name: Set CAPI client variables
         id: set-capi-client-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.CAPI_CLIENT_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.CAPI_CLIENT_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
               echo "repo=${{env.CAPI_CLIENT_REPO}}" >> $GITHUB_OUTPUT
@@ -139,7 +136,6 @@ jobs:
       - name: Set Remediation engine variables
         id: set-remediation-engine-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.REMEDIATION_ENGINE_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.REMEDIATION_ENGINE_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
               echo "repo=${{env.REMEDIATION_ENGINE_REPO}}" >> $GITHUB_OUTPUT
@@ -150,7 +146,6 @@ jobs:
       - name: Set Bouncer library variables
         id: set-bouncer-lib-data
         run: |
-          echo "major_tag=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/${{env.BOUNCER_LIB_REPO}}/releases/latest | grep -oP "\/tag\/v\K(.*)$" | cut -d. -f1)" >> $GITHUB_OUTPUT
           echo "branch=${{ fromJson(env.BOUNCER_LIB_JSON)[0] }}" >> $GITHUB_OUTPUT
           if [ "${{ inputs.is_call }}" = "true" ]; then
               echo "repo=${{env.BOUNCER_LIB_REPO}}" >> $GITHUB_OUTPUT
@@ -274,24 +269,24 @@ jobs:
       - name: Modify dependencies to use development aliases
         run: |
           # Standalone bouncer
-          composer require crowdsec/bouncer:"dev-${{ steps.set-bouncer-lib-data.outputs.branch }} as ${{ steps.set-bouncer-lib-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-          composer require crowdsec/common:"dev-${{  steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-          composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as ${{ steps.set-remediation-engine-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
-          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as ${{ steps.set-capi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/bouncer:"dev-${{ steps.set-bouncer-lib-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/common:"dev-${{  steps.set-common-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
+          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.EXTENSION_PATH}}
           # Bouncer lib
-          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
-          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
-          composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as ${{ steps.set-remediation-engine-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
-          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as ${{ steps.set-capi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/remediation-engine:"dev-${{ steps.set-remediation-engine-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
+          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.BOUNCER_LIB_PATH}}
           # Remediation engine
-          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
-          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as ${{ steps.set-lapi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
-          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as ${{ steps.set-capi-client-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          composer require crowdsec/lapi-client:"dev-${{ steps.set-lapi-client-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
+          composer require crowdsec/capi-client:"dev-${{ steps.set-capi-client-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.REMEDIATION_ENGINE_PATH}}
           # CAPI client
-          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.CAPI_CLIENT_PATH}}
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.CAPI_CLIENT_PATH}}
           # LAPI client
-          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as ${{ steps.set-common-data.outputs.major_tag }}.999.0" --no-update --working-dir ./${{env.LAPI_CLIENT_PATH}}
+          composer require crowdsec/common:"dev-${{ steps.set-common-data.outputs.branch }} as 999.999.0" --no-update --working-dir ./${{env.LAPI_CLIENT_PATH}}
 
       - name: Validate composer.json
         run: |
@@ -334,6 +329,15 @@ jobs:
           else
             echo "LAPI_CLIENT_VERSION COMPARISON KO"
             echo $LAPI_CLIENT_VERSION
+            exit 1
+          fi
+          CAPI_CLIENT_VERSION=$(ddev composer show crowdsec/capi-client --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
+          if [[ $CAPI_CLIENT_VERSION == "dev-${{ steps.set-capi-client-data.outputs.branch  }}" ]]
+          then
+            echo "CAPI_CLIENT_VERSION COMPARISON OK"
+          else
+            echo "CAPI_CLIENT_VERSION COMPARISON KO"
+            echo $CAPI_CLIENT_VERSION
             exit 1
           fi
           REMEDIATION_ENGINE_VERSION=$(ddev composer show crowdsec/remediation-engine --working-dir ./${{env.EXTENSION_PATH}} | grep -oP "versions : \* \K(.*)")
