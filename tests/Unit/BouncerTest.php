@@ -154,6 +154,15 @@ final class BouncerTest extends TestCase
 
     public function testPrivateAndProtectedMethods()
     {
+        if (PHP_VERSION_ID >= 80400) {
+            // Retrieve the current error reporting level
+            $originalErrorReporting = error_reporting();
+            // Suppress deprecated warnings temporarily
+            // We do this because of
+            // Deprecated: Gregwar\Captcha\CaptchaBuilder::__construct(): Implicitly marking parameter $builder as nullable
+            // is deprecated, the explicit nullable type must be used instead
+            error_reporting($originalErrorReporting & ~E_DEPRECATED);
+        }
         // capRemediationLevel
         $bouncer = new Bouncer($this->configs);
         $result = PHPUnitUtil::callMethod(
@@ -347,5 +356,9 @@ final class BouncerTest extends TestCase
             $error,
             'Should have throw an error'
         );
+        if (PHP_VERSION_ID >= 80400 && isset($originalErrorReporting)) {
+            // Restore the original error reporting level
+            error_reporting($originalErrorReporting);
+        }
     }
 }
