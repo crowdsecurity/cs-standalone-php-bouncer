@@ -34,7 +34,7 @@ This project provides a CrowdSec "standalone" bouncer for PHP-based websites. It
   - API key or TLS authentication
   - AppSec remediation support (only with API key authentication)
 - Support IpV4 and Ipv6 (Ipv6 range decisions are yet only supported in `Live mode`) 
-- Large PHP matrix compatibility: 7.2, 7.3, 7.4, 8.0, 8.1, 8.2 and 8.3
+- Large PHP matrix compatibility: from 7.2 to 8.4
 - Built-in support for the most known cache systems Redis, Memcached and PhpFiles
   - Clear, prune and refresh the bouncer cache
 
