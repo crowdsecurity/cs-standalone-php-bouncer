@@ -13,6 +13,6 @@ module.exports = {
             height: 1080,
         },
     },
-    browsers: ["firefox"],
-    devices: ["Desktop Firefox"],
+    browsers: ["chromium"],
+    devices: ["Desktop Chrome"],
 };
