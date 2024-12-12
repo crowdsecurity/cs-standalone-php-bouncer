@@ -41,10 +41,23 @@
     ],
     "require": {
         "php": ">=7.2.5",
-        "crowdsec/bouncer": "^3.2.0"
+        "crowdsec/bouncer": "^3.2.0",
+        "cweagans/composer-patches": "^1.7"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5.30 || ^9.3",
         "mikey179/vfsstream": "^1.6.11"
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
+    },
+    "extra": {
+        "patches": {
+            "gregwar/captcha": {
+                "Fix deprecation in CaptchaBuilder constructor": "patches/gregwar-captcha-constructor.patch"
+            }
+        }
     }
 }
