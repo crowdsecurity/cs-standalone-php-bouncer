@@ -21,5 +21,10 @@
       "type": "path",
       "url": "../../"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "cweagans/composer-patches": true
+    }
   }
 }
