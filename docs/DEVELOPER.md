@@ -154,6 +154,12 @@ Run:
 ddev composer update --working-dir ./my-code/standalone-bouncer
 ```
 
+For advanced usage, you can create a `composer-dev.json` file in the `my-code/standalone-bouncer` folder and run:
+
+```bash
+ddev exec COMPOSER=composer-dev.json composer update --working-dir ./my-code/standalone-bouncer
+```
+
 #### Find IP of your docker services
 
 In most cases, you will test to bounce your current IP. As we are running on a docker stack, this is the local host IP.

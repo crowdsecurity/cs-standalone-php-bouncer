@@ -22,6 +22,7 @@
     - [`auto_prepend_file` directive](#auto_prepend_file-directive)
     - [Stream mode cron task](#stream-mode-cron-task)
     - [Cache pruning cron task](#cache-pruning-cron-task)
+    - [Usage metrics push cron task](#usage-metrics-push-cron-task)
 - [Upgrade](#upgrade)
   - [Before upgrading](#before-upgrading)
   - [Retrieve the last tag](#retrieve-the-last-tag)
@@ -190,6 +191,20 @@ and add the following line
 ```
 
 In this example, cache is pruned at midnight every day, but you can modify the cron expression depending on your needs.
+
+#### Usage metrics push cron task
+
+If you want to push usage metrics to the CrowdSec API, you should add a cron job:
+
+```shell
+sudo -u www-data crontab -e
+```
+
+and add the following line
+
+```shell
+0 0 * * * /usr/bin/php /var/www/crowdsec-standalone-bouncer/scripts/push-usage-metrics.php
+```
 
 ## Upgrade
 

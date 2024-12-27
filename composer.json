@@ -41,7 +41,7 @@
     ],
     "require": {
         "php": ">=7.2.5",
-        "crowdsec/bouncer": "^3.2.0",
+        "crowdsec/bouncer": "^4.0.0",
         "cweagans/composer-patches": "^1.7"
     },
     "require-dev": {

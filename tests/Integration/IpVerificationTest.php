@@ -238,7 +238,7 @@ final class IpVerificationTest extends TestCase
 
         $this->assertEquals([['005.006.007.008', '005.006.007.008']], $bouncer->getConfig('trust_ip_forward_array'), 'Forwarded array config');
 
-        $this->assertEquals(Constants::BOUNCING_LEVEL_NORMAL, $bouncer->getConfig('bouncing_level'), 'Bouncing level config');
+        $this->assertEquals(Constants::BOUNCING_LEVEL_NORMAL, $bouncer->getRemediationEngine()->getConfig('bouncing_level'), 'Bouncing level config');
 
         $this->assertEquals(null, $bouncer->getConfig('unexpected_config'), 'Should clean config');
 
@@ -704,14 +704,14 @@ final class IpVerificationTest extends TestCase
             $this->assertArrayNotHasKey('appsec', $originCountItem, 'The origin count for appsec should not be set');
         } else {
             $this->assertEquals(
-                1,
+                ['ban' => 1],
                 $originCountItem['appsec'],
                 'The origin count for appsec should be 1'
             );
         }
 
         $this->assertEquals(
-            1,
+            ['bypass' => 1],
             $originCountItem['clean'],
             'The origin count for clean should be 1'
         );
@@ -738,13 +738,13 @@ final class IpVerificationTest extends TestCase
             $this->assertArrayNotHasKey('clean_appsec', $originCountItem, 'The origin count for clean appsec should not be set');
         } else {
             $this->assertEquals(
-                1,
+                ['bypass' => 1],
                 $originCountItem['clean_appsec'],
                 'The origin count for clean appsec should be 1'
             );
         }
         $this->assertEquals(
-            1,
+            ['bypass' => 1],
             $originCountItem['clean'],
             'The origin count for clean should be 1'
         );
@@ -928,7 +928,7 @@ final class IpVerificationTest extends TestCase
         $this->assertEquals(false, $bouncer->run(), 'Should not bounce excluded uri');
         PHPUnitUtil::assertRegExp(
             $this,
-            '/.*100.*Will not bounce as URI is excluded/',
+            '/.*100.*This URI is excluded from bouncing/',
             file_get_contents($this->root->url() . '/' . $this->debugFile),
             'Debug log content should be correct'
         );
@@ -944,7 +944,7 @@ final class IpVerificationTest extends TestCase
 
         PHPUnitUtil::assertRegExp(
             $this,
-            '/.*100.*Will not bounce as bouncing is disabled/',
+            '/.*100.*Bouncing is disabled by bouncing_level configuration/',
             file_get_contents($this->root->url() . '/' . $this->debugFile),
             'Debug log content should be correct'
         );

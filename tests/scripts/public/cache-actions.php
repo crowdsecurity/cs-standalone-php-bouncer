@@ -26,6 +26,9 @@ if (isset($_GET['action']) && in_array($_GET['action'], ['refresh', 'clear', 'pr
         case 'prune':
             $bouncer->pruneCache();
             break;
+        case 'push-usage-metrics':
+            $bouncer->pushUsageMetrics('test-'. Constants::BOUNCER_NAME. '-e2e', Constants::VERSION, 'test-crowdsec-php-bouncer');
+            break;
         case 'captcha-phrase':
             if(!isset($_GET['ip'])){
                 exit('You must pass an "ip" param to get the associated captcha phrase' . \PHP_EOL);
