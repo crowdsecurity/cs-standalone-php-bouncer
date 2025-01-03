@@ -293,7 +293,7 @@ in the playwright container with this command :
 If you want to test with the `host` parameter, you will have to install manually all the required dependencies:
 
 ```
-yarn --cwd ./tests/e2e-ddev --force
+yarn --cwd ./tests/end-to-end --force
 yarn global add cross-env
 ```
 
