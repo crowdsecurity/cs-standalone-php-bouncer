@@ -33,12 +33,16 @@ This project provides a CrowdSec "standalone" bouncer for PHP-based websites. It
   - `Live mode` or `Stream mode`
   - API key or TLS authentication
   - AppSec remediation support (only with API key authentication)
-- Support IpV4 and Ipv6 (Ipv6 range decisions are yet only supported in `Live mode`) 
+
+- Handle different tasks:
+  - Clear or prune cache
+  - Refresh decisions
+  - Push usage metrics
+
 - Large PHP matrix compatibility: from 7.2 to 8.4
 - Built-in support for the most known cache systems Redis, Memcached and PhpFiles
-  - Clear, prune and refresh the bouncer cache
+- Support IpV4 and Ipv6 (Ipv6 range decisions are yet only supported in `Live mode`)
 
-- Cap remediation level (ex: for sensitives websites: ban will be capped to captcha)
 
 
 ## Usage

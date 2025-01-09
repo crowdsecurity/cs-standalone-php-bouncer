@@ -163,32 +163,7 @@ final class BouncerTest extends TestCase
             // is deprecated, the explicit nullable type must be used instead
             error_reporting($originalErrorReporting & ~E_DEPRECATED);
         }
-        // capRemediationLevel
         $bouncer = new Bouncer($this->configs);
-        $result = PHPUnitUtil::callMethod(
-            $bouncer,
-            'capRemediationLevel',
-            ['ban']
-        );
-        $this->assertEquals('ban', $result, 'Remediation should be capped as ban');
-
-        $this->configs['bouncing_level'] = Constants::BOUNCING_LEVEL_DISABLED;
-        $bouncer = new Bouncer($this->configs);
-        $result = PHPUnitUtil::callMethod(
-            $bouncer,
-            'capRemediationLevel',
-            ['ban']
-        );
-        $this->assertEquals('bypass', $result, 'Remediation should be capped as bypass');
-
-        $this->configs['bouncing_level'] = Constants::BOUNCING_LEVEL_FLEX;
-        $bouncer = new Bouncer($this->configs);
-        $result = PHPUnitUtil::callMethod(
-            $bouncer,
-            'capRemediationLevel',
-            ['ban']
-        );
-        $this->assertEquals('captcha', $result, 'Remediation should be capped as captcha');
 
         // checkCaptcha
         $result = PHPUnitUtil::callMethod(

@@ -10,7 +10,15 @@ use CrowdSecStandalone\Constants;
 /**
  * @var $crowdSecStandaloneBouncerConfig
  */
-if (isset($_GET['action']) && in_array($_GET['action'], ['refresh', 'clear', 'prune','captcha-phrase'])) {
+if (isset($_GET['action']) && in_array($_GET['action'],
+        [
+            'refresh',
+            'clear',
+            'prune',
+            'captcha-phrase',
+            'push-usage-metrics',
+            'show-origins-count'
+        ])) {
     $action = $_GET['action'];
     $settings = include_once __DIR__ . '/../../../scripts/settings.php';
     $bouncer = new Bouncer($settings);
@@ -26,6 +34,9 @@ if (isset($_GET['action']) && in_array($_GET['action'], ['refresh', 'clear', 'pr
         case 'prune':
             $bouncer->pruneCache();
             break;
+        case 'push-usage-metrics':
+            $bouncer->pushUsageMetrics('test-'. Constants::BOUNCER_NAME. '-e2e', Constants::VERSION, 'test-crowdsec-php-bouncer');
+            break;
         case 'captcha-phrase':
             if(!isset($_GET['ip'])){
                 exit('You must pass an "ip" param to get the associated captcha phrase' . \PHP_EOL);
@@ -40,6 +51,11 @@ if (isset($_GET['action']) && in_array($_GET['action'], ['refresh', 'clear', 'pr
                 $phrase = $cached['phrase_to_guess']??"No phrase to guess for this captcha (already resolved ?)";
                 $result = "<h1>$phrase</h1>";
             }
+            break;
+        case 'show-origins-count':
+            $result = "<h1>Origins count</h1>";
+            $origins = $bouncer->getRemediationEngine()->getOriginsCount();
+            $result .= "<div id='origins-count'>".json_encode($origins)."</div>";
             break;
         default:
             throw new Exception("Unknown cache action type:$action");
