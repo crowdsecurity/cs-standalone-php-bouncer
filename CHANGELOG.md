@@ -11,7 +11,7 @@ protected methods, properties and constants belonging to the `src` folder and of
 
 ---
 
-## [1.4.0](https://github.com/crowdsecurity/cs-standalone-php-bouncer/releases/tag/v1.4.0) - 202?-??-??
+## [1.4.0](https://github.com/crowdsecurity/cs-standalone-php-bouncer/releases/tag/v1.4.0) - 2025-01-09
 
 [_Compare with previous release_](https://github.com/crowdsecurity/cs-standalone-php-bouncer/compare/v1.3.1...v1.4.0)
 

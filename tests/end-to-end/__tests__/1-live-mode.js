@@ -151,7 +151,7 @@ describe(`Live mode run`, () => {
         await publicHomepageShouldBeAccessible();
         // count origin: cscli/captcha = 6,clean/bypass = 3
         await runCacheAction("show-origins-count");
-        originsCount = await page.$eval(
+        const originsCount = await page.$eval(
             "#origins-count",
             (el) => el.innerText,
         );
