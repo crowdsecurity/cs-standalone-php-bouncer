@@ -76,7 +76,7 @@ final class IpVerificationTest extends TestCase
         $currentDate = date('Y-m-d');
         $this->debugFile = 'debug-' . $currentDate . '.log';
         $this->prodFile = 'prod-' . $currentDate . '.log';
-        $this->logger = new FileLog(['log_directory_path' => $this->root->url(), 'debug_mode' => true]);
+        $this->logger = new FileLog(['log_directory_path' => $this->root->url(), 'debug_mode' => true, 'log_rotator' => true], 'php_standalone_bouncer');
 
         $bouncerConfigs = [
             'auth_type' => $this->useTls ? \CrowdSec\LapiClient\Constants::AUTH_TLS : Constants::AUTH_KEY,
