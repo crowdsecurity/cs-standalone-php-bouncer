@@ -38,7 +38,7 @@ See [Installation Guide](https://github.com/crowdsecurity/cs-standalone-php-boun
 
 ## Developer guide
 
-See [Developer guide](https://github.com/crowdsecurity/cs-standalone-php-bouncer/blob/main/docs/DEVELOPER.md)
+See [Developer Guide](https://github.com/crowdsecurity/cs-standalone-php-bouncer/blob/main/docs/DEVELOPER.md)
 
 
 ## License
