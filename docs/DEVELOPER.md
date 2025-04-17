@@ -210,7 +210,8 @@ ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APPSEC
 ```
 
 For geolocation Unit Test, you should first put 2 free MaxMind databases in the `tests` folder : `GeoLite2-City.mmdb`
-and `GeoLite2-Country.mmdb`. You can download these databases by creating a MaxMind account and browse to [the download page](https://www.maxmind.com/en/accounts/current/geoip/downloads).
+and `GeoLite2-Country.mmdb`. You can download these databases by [creating a MaxMind account](https://support.maxmind.com/hc/en-us/articles/4407099783707-Create-an-Account) and browse to the 
+download page.
 
 
 Then, you can run:
