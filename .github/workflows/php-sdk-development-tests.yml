@@ -809,6 +809,7 @@ jobs:
         run: |
           # Add delay
           ddev exec -s crowdsec tc qdisc add dev eth0 root netem delay 500ms
+          ddev exec -s crowdsec tc qdisc add dev eth1 root netem delay 500ms
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}
           cat scripts/settings.php
           cd ${{ github.workspace }}/${{env.EXTENSION_PATH}}/tests/end-to-end/
