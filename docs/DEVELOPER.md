@@ -660,13 +660,6 @@ Example:
     feat(admin): Add css for admin actions
 
 
-You can use the `commit-msg` git hook that you will find in the `.githooks` folder: 
-
-```
-cp .githooks/commit-msg .git/hooks/commit-msg
-chmod +x .git/hooks/commit-msg
-```
-
 ### Allowed message `type` values
 
 - chore (automatic tasks; no production code change)
