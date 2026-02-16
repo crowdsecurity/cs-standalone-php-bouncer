@@ -6,6 +6,7 @@ on:
       tag_name:
         type: string
         required: true
+        description: tag with v prefix
 
 jobs:
   prepare-release:

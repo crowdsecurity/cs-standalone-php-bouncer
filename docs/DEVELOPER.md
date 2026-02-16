@@ -51,7 +51,7 @@
 
 There are many ways to install this library on a local PHP environment.
 
-We are using [DDEV](https://ddev.readthedocs.io/en/stable/) because it is quite simple to use and customize.
+We are using [DDEV](https://docs.ddev.com/en/stable/) because it is quite simple to use and customize.
 
 Of course, you may use your own local stack, but we provide here some useful tools that depends on DDEV.
 
@@ -63,7 +63,7 @@ For a quick start, follow the below steps.
 
 #### DDEV installation
 
-For the DDEV installation, please follow the [official instructions](https://ddev.readthedocs.io/en/stable/users/install/ddev-installation/).
+For the DDEV installation, please follow the [official instructions](https://docs.ddev.com/en/stable/users/install/ddev-installation/).
 
 
 #### Prepare DDEV PHP environment
@@ -210,7 +210,7 @@ ddev exec BOUNCER_KEY=your-bouncer-key AGENT_TLS_PATH=/var/www/html/cfssl APPSEC
 ```
 
 For geolocation Unit Test, you should first put 2 free MaxMind databases in the `tests` folder : `GeoLite2-City.mmdb`
-and `GeoLite2-Country.mmdb`. You can download these databases by [creating a MaxMind account](https://support.maxmind.com/hc/en-us/articles/4407099783707-Create-an-Account) and browse to the 
+and `GeoLite2-Country.mmdb`. You can download these databases by [creating a MaxMind account](https://support.maxmind.com/knowledge-base/articles/create-a-maxmind-account) and browse to the 
 download page.
 
 
