@@ -17,7 +17,7 @@ protected methods, properties and constants belonging to the `src` folder and of
 
 ### Removed
 
-- Remove gregwar/Captcha composer patch
+- Remove `Gregwar/Captcha` composer patch
 
 ### FIxed
 
