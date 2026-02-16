@@ -5,6 +5,11 @@ on:
       - main
     paths-ignore:
       - '**.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
     inputs:
       coverage_report:
@@ -24,11 +29,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
 
     name: Coding standards
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, 'chore(') }}
     env:
       EXTENSION_PATH: "my-code/standalone-bouncer"
       DDEV_PROJECT: "crowdsec-standalone-bouncer"

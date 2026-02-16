@@ -44,6 +44,7 @@ class Bouncer extends AbstractBouncer
     /**
      * The current HTTP method.
      */
+    #[\Override]
     public function getHttpMethod(): string
     {
         return $_SERVER['REQUEST_METHOD'] ?? '';
@@ -52,6 +53,7 @@ class Bouncer extends AbstractBouncer
     /**
      * @param string $name Ex: "X-Forwarded-For"
      */
+    #[\Override]
     public function getHttpRequestHeader(string $name): ?string
     {
         $headerName = 'HTTP_' . str_replace('-', '_', strtoupper($name));
@@ -65,6 +67,7 @@ class Bouncer extends AbstractBouncer
     /**
      * Get the value of a posted field.
      */
+    #[\Override]
     public function getPostedVariable(string $name): ?string
     {
         if (!isset($_POST[$name])) {
@@ -77,6 +80,7 @@ class Bouncer extends AbstractBouncer
     /**
      * @return string The current IP, even if it's the IP of a proxy
      */
+    #[\Override]
     public function getRemoteIp(): string
     {
         return $_SERVER['REMOTE_ADDR'] ?? '';
@@ -85,13 +89,14 @@ class Bouncer extends AbstractBouncer
     /**
      * @SuppressWarnings(PHPMD.ElseExpression)
      */
+    #[\Override]
     public function getRequestHeaders(): array
     {
         $allHeaders = [];
 
         if (function_exists('getallheaders')) {
             // @codeCoverageIgnoreStart
-            $allHeaders = getallheaders();
+            $allHeaders = getallheaders() ?: [];
         // @codeCoverageIgnoreEnd
         } else {
             $this->logger->warning(
@@ -117,11 +122,13 @@ class Bouncer extends AbstractBouncer
     /**
      * Get current request host.
      */
+    #[\Override]
     public function getRequestHost(): string
     {
         return $_SERVER['HTTP_HOST'] ?? '';
     }
 
+    #[\Override]
     public function getRequestRawBody(): string
     {
         return $this->buildRequestRawBody(fopen('php://input', 'rb'));
@@ -130,6 +137,7 @@ class Bouncer extends AbstractBouncer
     /**
      * The current URI.
      */
+    #[\Override]
     public function getRequestUri(): string
     {
         return $_SERVER['REQUEST_URI'] ?? '';
@@ -138,6 +146,7 @@ class Bouncer extends AbstractBouncer
     /**
      * Get current request user agent.
      */
+    #[\Override]
     public function getRequestUserAgent(): string
     {
         return $_SERVER['HTTP_USER_AGENT'] ?? '';

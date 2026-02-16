@@ -11,6 +11,21 @@ protected methods, properties and constants belonging to the `src` folder and of
 
 ---
 
+## [1.6.0](https://github.com/crowdsecurity/cs-standalone-php-bouncer/releases/tag/v1.6.0) - 2026-02-16
+
+[_Compare with previous release_](https://github.com/crowdsecurity/cs-standalone-php-bouncer/compare/v1.5.0...v1.6.0)
+
+### Removed
+
+- Remove gregwar/Captcha composer patch
+
+### FIxed
+
+- Fix deprecation warnings in PHP 8.5
+
+
+---
+
 ## [1.5.0](https://github.com/crowdsecurity/cs-standalone-php-bouncer/releases/tag/v1.5.0) - 2025-01-10
 
 [_Compare with previous release_](https://github.com/crowdsecurity/cs-standalone-php-bouncer/compare/v1.4.0...v1.5.0)
