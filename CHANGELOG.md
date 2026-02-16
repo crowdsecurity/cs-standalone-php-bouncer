@@ -19,7 +19,7 @@ protected methods, properties and constants belonging to the `src` folder and of
 
 - Remove `Gregwar/Captcha` composer patch
 
-### FIxed
+### Fixed
 
 - Fix deprecation warnings in PHP 8.5
 
